@@ -1,19 +1,24 @@
 #include <QApplication>
 #include <QFile>
-#include "views/FenetreConnexion.h"
-#include "data/DataManager.h"
-int main(int argc, char* argv[]) {
+#include <QTextStream>
+#include "mainwindow.h"
+
+int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
-    // Charger la feuille de style
-    QFile styleFile(":styles/style.qss");
-    if (styleFile.open(QIODevice::ReadOnly)) {
-        app.setStyleSheet(styleFile.readAll());
-        styleFile.close();
+
+    // 1. Open the QSS file
+    QFile file(":/styles/style.qss");
+    if (file.open(QFile::ReadOnly | QFile::Text)) {
+        // 2. Read the stylesheet text
+        QTextStream stream(&file);
+        QString styleSheet = stream.readAll();
+
+        // 3. Apply it to the entire application
+        app.setStyleSheet(styleSheet);
+        file.close();
     }
-    // Initialiser la base de données
-    DataManager::instance().initialiser("data/banque.db");
-    // Afficher la fenêtre de connexion
-    FenetreConnexion connexion;
-    connexion.show();
+
+    MainWindow w;
+    w.show();
     return app.exec();
 }

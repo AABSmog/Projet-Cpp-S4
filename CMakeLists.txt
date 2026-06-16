@@ -13,7 +13,7 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
-        main.cpp
+
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
@@ -24,7 +24,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         models/comptebancaire.h models/comptebancaire.cpp
-        views/widgets/graphiquesolde.h views/widgets/graphiquesolde.cpp
+
         models/client.h models/client.cpp
         models/transaction.h models/transaction.cpp
         models/pret.h models/pret.cpp
@@ -39,6 +39,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         controllers/statcontroller.h controllers/statcontroller.cpp
         data/datamanager.h data/datamanager.cpp
         resources/resources.qrc
+        main.h main.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET BankVision APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
