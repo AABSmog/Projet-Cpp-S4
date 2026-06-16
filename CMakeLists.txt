@@ -25,6 +25,20 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
         models/comptebancaire.h models/comptebancaire.cpp
         views/widgets/graphiquesolde.h views/widgets/graphiquesolde.cpp
+        models/client.h models/client.cpp
+        models/transaction.h models/transaction.cpp
+        models/pret.h models/pret.cpp
+        models/banque.h models/banque.cpp
+        views/fenetreconnexion.h views/fenetreconnexion.cpp
+        views/fenetretableaubord.h views/fenetretableaubord.cpp
+        views/fenetrestatistiques.h views/fenetrestatistiques.cpp
+        views/widgets/camembertdepenses.h views/widgets/camembertdepenses.cpp
+        views/widgets/indicateursolde.h views/widgets/indicateursolde.cpp
+        controllers/authcontroller.h controllers/authcontroller.cpp
+        controllers/comptecontroller.h controllers/comptecontroller.cpp
+        controllers/statcontroller.h controllers/statcontroller.cpp
+        data/datamanager.h data/datamanager.cpp
+        resources/resources.qrc
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET BankVision APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

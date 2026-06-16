@@ -1,0 +1,47 @@
+/* Fenêtre principale */
+QMainWindow {
+ background-color: #0F1E3D;
+}
+/* Boutons primaires */
+QPushButton[type="primary"] {
+ background-color: #2E6DB4;
+ color: white;
+ border: none;
+ border-radius: 6px;
+ padding: 10px 20px;
+ font-size: 14px;
+ font-weight: bold;
+}
+QPushButton[type="primary"]:hover {
+ background-color: #1B3A6B;
+}
+QPushButton[type="danger"] {
+ background-color: #C0392B;
+ color: white;
+ border-radius: 6px;
+ padding: 10px 20px;
+}
+/* Champs de saisie */
+QLineEdit {
+ background-color: #1A2F5A;
+ color: #E8F0FF;
+ border: 1px solid #2E6DB4;
+ border-radius: 4px;
+ padding: 8px;
+ font-size: 13px;
+}
+QLineEdit:focus { border-color: #5BA3E0; }
+/* Tableau des transactions */
+QTableWidget {
+ background-color: #12244A;
+ color: #D0E4FF;
+ gridline-color: #1A3A7A;
+ selection-background-color: #2E6DB4;
+}
+QHeaderView::section {
+ background-color: #1B3A6B;
+ color: white;
+ padding: 6px;
+ border: none;
+ font-weight: bold;
+}
