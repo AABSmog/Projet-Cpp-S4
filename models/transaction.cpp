@@ -1,3 +1,13 @@
-#include "transaction.h"
+#pragma once
+#include <QString>
+#include <QVector>
+#include <QDateTime>
 
-Transaction::Transaction() {}
+struct Transaction {
+    int id;
+    QDateTime date;
+    QString type; // "depot", "retrait", "virement"
+    double montant;
+    double soldeApres;
+    QString description;
+};

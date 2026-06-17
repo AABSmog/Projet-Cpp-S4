@@ -1,3 +1,9 @@
-#include "datamanager.h"
+#include <QString>
+#include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlQuery>
 
-DataManager::DataManager() {}
+QString path = "path";
+
+class DataManager{
+
+};
