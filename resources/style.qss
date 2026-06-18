@@ -1,47 +1,129 @@
-/* Fenêtre principale */
+/* =========================
+   Fenêtre principale
+   ========================= */
 QMainWindow {
- background-color: #0F1E3D;
+    background-color: #0F1E3D;
 }
-/* Boutons primaires */
+
+/* =========================
+   Carte de connexion
+   ========================= */
+QFrame#loginCard {
+    background-color: #12244A;
+    border: 1px solid #2E6DB4;
+    border-radius: 12px;
+}
+
+/* =========================
+   Titres et labels
+   ========================= */
+QLabel {
+    color: #E8F0FF;
+    font-size: 13px;
+}
+
+QLabel#titleLabel {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+}
+
+QLabel#subtitleLabel {
+    color: #8FAAD4;
+    font-size: 12px;
+}
+
+/* =========================
+   Boutons primaires
+   ========================= */
 QPushButton[type="primary"] {
- background-color: #2E6DB4;
- color: white;
- border: none;
- border-radius: 6px;
- padding: 10px 20px;
- font-size: 14px;
- font-weight: bold;
+    background-color: #2E6DB4;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
 }
+
 QPushButton[type="primary"]:hover {
- background-color: #1B3A6B;
+    background-color: #1B3A6B;
 }
+
+/* =========================
+   Boutons danger
+   ========================= */
 QPushButton[type="danger"] {
- background-color: #C0392B;
- color: white;
- border-radius: 6px;
- padding: 10px 20px;
+    background-color: #C0392B;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
 }
-/* Champs de saisie */
+
+QPushButton[type="danger"]:hover {
+    background-color: #922B21;
+}
+
+/* =========================
+   Champs de saisie
+   ========================= */
 QLineEdit {
- background-color: #1A2F5A;
- color: #E8F0FF;
- border: 1px solid #2E6DB4;
- border-radius: 4px;
- padding: 8px;
- font-size: 13px;
+    background-color: #1A2F5A;
+    color: #E8F0FF;
+    border: 1px solid #2E6DB4;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 13px;
 }
-QLineEdit:focus { border-color: #5BA3E0; }
-/* Tableau des transactions */
+
+QLineEdit:focus {
+    border-color: #5BA3E0;
+}
+
+/* =========================
+   Tableau des transactions
+   ========================= */
 QTableWidget {
- background-color: #12244A;
- color: #D0E4FF;
- gridline-color: #1A3A7A;
- selection-background-color: #2E6DB4;
+    background-color: #12244A;
+    color: #D0E4FF;
+    gridline-color: #1A3A7A;
+    selection-background-color: #2E6DB4;
 }
+
 QHeaderView::section {
- background-color: #1B3A6B;
- color: white;
- padding: 6px;
- border: none;
- font-weight: bold;
+    background-color: #1B3A6B;
+    color: white;
+    padding: 6px;
+    border: none;
+    font-weight: bold;
+}
+
+/* =========================
+   ComboBox
+   ========================= */
+QComboBox {
+    background-color: #1A2F5A;
+    color: white;
+    border: 1px solid #2E6DB4;
+    border-radius: 4px;
+    padding: 6px;
+}
+
+/* =========================
+   GroupBox
+   ========================= */
+QGroupBox {
+    color: white;
+    font-weight: bold;
+    border: 1px solid #2E6DB4;
+    border-radius: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 5px;
 }

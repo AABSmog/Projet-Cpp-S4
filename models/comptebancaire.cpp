@@ -1,39 +1,86 @@
-#pragma once
+
 #include <QString>
 #include <QVector>
 #include <QDateTime>
-enum class TypeCompte { COURANT, EPARGNE, PROFESSIONNEL };
-enum class StatutCompte { ACTIF, BLOQUE, FERME };
-struct Transaction {
-    int id;
-    QDateTime date;
-    QString type; // "depot", "retrait", "virement"
-    double montant;
-    double soldeApres;
-    QString description;
-};
-class CompteBancaire {
-public:
-    CompteBancaire(const QString& iban, TypeCompte type,
-                   double soldeInitial = 0.0);
-    // Opérations
-    bool deposer(double montant, const QString& desc = "");
-    bool retirer(double montant, const QString& desc = "");
-    bool virer(CompteBancaire& dest, double montant);
-    // Accesseurs
-    double getSolde() const { return solde; }
-    QString getIBAN() const { return iban; }
-    TypeCompte getType() const { return type; }
-    StatutCompte getStatut() const { return statut; }
-    QVector<Transaction> getHistorique(int n = 30) const;
+#include "comptebancaire.h"
+
+    //Constructeur
+    CompteBancaire::CompteBancaire(const QString& iban, TypeCompte type,
+                   double soldeInitial, StatutCompte statut){
+        this->iban = iban;
+        this->type = type;
+        this->solde = soldeInitial;
+        this->statut = statut;
+    }
+    // Methodes de transaction
+    bool CompteBancaire::deposer(double montant, const QString& desc){
+        if (montant<=0){
+            return false;}
+        this->solde+=montant;
+        enregistrerTransaction(
+            "depot",
+            montant,
+            desc
+            );
+        return true;
+    }
+    bool CompteBancaire::retirer(double montant, const QString& desc){
+        if (montant <= 0 || montant > solde)
+            return false;
+
+        solde -= montant;
+        enregistrerTransaction(
+            "retrait",
+            montant,
+            desc
+            );
+        return true;
+    }
+    bool CompteBancaire::virer(CompteBancaire& dest, double montant){
+        if (!retirer(montant))
+            return false;
+
+        dest.deposer(montant);
+        return true;
+    }
+    // Getter et setter
+    double CompteBancaire::getSolde() const
+    { return solde; }
+    void CompteBancaire::setSolde(double sold){
+         solde = sold;
+    }
+    QString CompteBancaire::getIBAN() const
+    { return iban; }
+    void CompteBancaire::setIBAN(QString iban){
+         this->iban = iban;
+    }
+    TypeCompte CompteBancaire::getType() const
+    { return type; }
+    void CompteBancaire::setType(TypeCompte type){
+         this->type = type;
+    }
+    StatutCompte CompteBancaire::getStatut() const { return statut; }
+    void CompteBancaire::setStatut(StatutCompte statut)
+    {this->statut = statut;}
+    QVector<Transaction> CompteBancaire::getHistorique(int n) const{ return historique;}
     // Statistiques
-    double getSoldeMoyen(int jours = 30) const;
-    QVector<double> getSoldesMensuels(int mois = 12) const;
-private:
-    QString iban;
-    double solde;
-    TypeCompte type;
-    StatutCompte statut;
-    QVector<Transaction> historique;
-    void enregistrerTransaction(const QString& t, double m, const QString& d);
-};
+    double CompteBancaire::getSoldeMoyen(int jours ) const{
+        // À compléter plus tard
+    }
+    QVector<double> CompteBancaire::getSoldesMensuels(int mois ) const{
+         // À compléter plus tard
+    }
+
+    void CompteBancaire::enregistrerTransaction(const QString& t, double m, const QString& d){
+        Transaction tr;
+
+        tr.id = historique.size() + 1;
+        tr.date = QDateTime::currentDateTime();
+        tr.type = t;
+        tr.montant = m;
+        tr.soldeApres = solde;
+        tr.description = d;
+
+        historique.append(tr);
+    }
+
