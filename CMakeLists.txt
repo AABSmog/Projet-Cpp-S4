@@ -40,8 +40,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         data/datamanager.h data/datamanager.cpp
         resources/resources.qrc
         main.h main.cpp
-        data/compteData.h
-        data/compteData.cpp
+
+
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET BankVision APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
