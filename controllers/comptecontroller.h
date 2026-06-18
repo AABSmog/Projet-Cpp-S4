@@ -1,7 +1,7 @@
 #ifndef COMPTECONTROLLER_H
 #define COMPTECONTROLLER_H
 
-#include "comptebancaire.h"
+#include "../models/comptebancaire.h"
 class CompteController
 {
 public:

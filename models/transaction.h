@@ -8,6 +8,7 @@ class Transaction
 {
 public:
     // Constructeur
+     Transaction();
     Transaction(int id,
                 const QDateTime& date,
                 const QString& type,

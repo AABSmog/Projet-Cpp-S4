@@ -3,6 +3,7 @@
 #include <QVector>
 #include <QDateTime>
 #include "comptebancaire.h"
+#include "datamanager.h"
 
     //Constructeur
     CompteBancaire::CompteBancaire(const QString& iban, TypeCompte type,
@@ -72,15 +73,17 @@
     }
 
     void CompteBancaire::enregistrerTransaction(const QString& t, double m, const QString& d){
-        Transaction tr;
-
-        tr.id = historique.size() + 1;
-        tr.date = QDateTime::currentDateTime();
-        tr.type = t;
-        tr.montant = m;
-        tr.soldeApres = solde;
-        tr.description = d;
+        Transaction tr(
+            historique.size() + 1,
+            QDateTime::currentDateTime(),
+            t,
+            m,
+            solde,
+            d
+            );
 
         historique.append(tr);
     }
+    static CompteBancaire* chercherCompte(const QString& iban){
 
+    }

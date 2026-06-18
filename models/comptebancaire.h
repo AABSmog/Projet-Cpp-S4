@@ -4,14 +4,7 @@
 enum class TypeCompte { COURANT, EPARGNE, PROFESSIONNEL };
 enum class StatutCompte { ACTIF, BLOQUE, FERME };
 
-struct Transaction {
-    int    id;
-    QDateTime date;
-    QString   type;       // "depot", "retrait", "virement"
-    double    montant;
-    double    soldeApres;
-    QString   description;
-};
+
 class CompteBancaire {
 public:
     //Constructeur
@@ -34,6 +27,7 @@ public:
     // Statistiques
     double getSoldeMoyen(int jours = 30) const;
     QVector<double> getSoldesMensuels(int mois = 12) const;
+      static CompteBancaire* chercherCompte(const QString& iban);
 private:
     //LES ATTRIBUTS
     QString iban;
