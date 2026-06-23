@@ -1,9 +1,8 @@
-
 #include <QString>
 #include <QVector>
 #include <QDateTime>
 #include "comptebancaire.h"
-#include "datamanager.h"
+#include "../data/datamanager.h"
 
     //Constructeur
     CompteBancaire::CompteBancaire(const QString& iban, TypeCompte type,
@@ -25,7 +24,7 @@
             );
         return true;
     }
-    bool CompteBancaire::retirer(double montant, const QString& desc){
+    double CompteBancaire::retirer(double montant, const QString& desc){
         if (montant <= 0 || montant > solde)
             return false;
 
@@ -44,6 +43,7 @@
         dest.deposer(montant);
         return true;
     }
+    //----------------
     // Getter et setter
     double CompteBancaire::getSolde() const
     { return solde; }
@@ -84,6 +84,4 @@
 
         historique.append(tr);
     }
-    static CompteBancaire* chercherCompte(const QString& iban){
 
-    }

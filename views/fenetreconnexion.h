@@ -1,10 +1,24 @@
-#ifndef FENETRECONNEXION_H
-#define FENETRECONNEXION_H
+#pragma once
 
-class FenetreConnexion
+#include <QWidget>
+
+class QLabel;
+class QLineEdit;
+class QPushButton;
+
+class FenetreConnexion : public QWidget
 {
+    Q_OBJECT
+
 public:
-    FenetreConnexion();
+    explicit FenetreConnexion(QWidget *parent = nullptr);
+
+private:
+    QLineEdit* txtIdentifiant;
+    QLineEdit* txtPassword;
+
+    QPushButton* btnConnexion;
+
+    QLabel* lblEssais;
 };
 
-#endif // FENETRECONNEXION_H

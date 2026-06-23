@@ -1,10 +1,11 @@
-#ifndef FENETRESTATISTIQUES_H
-#define FENETRESTATISTIQUES_H
+#pragma once
 
-class FenetreStatistiques
+#include <QWidget>
+
+class FenetreStatistiques : public QWidget
 {
-public:
-    FenetreStatistiques();
-};
+    Q_OBJECT
 
-#endif // FENETRESTATISTIQUES_H
+public:
+    explicit FenetreStatistiques(QWidget *parent = nullptr);
+};

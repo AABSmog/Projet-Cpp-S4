@@ -3,7 +3,7 @@
 #include <QString>
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlQuery>
-
+#include "../models/comptebancaire.h"
 class DataManager
 {
 public:

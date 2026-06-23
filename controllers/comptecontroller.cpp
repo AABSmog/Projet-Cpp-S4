@@ -7,41 +7,40 @@ bool CompteController::faire_depot(const QString& iban,
                                   double montant,
                                   const QString& description)
 {
-    // Recherche du compte
-    CompteBancaire* compte = banque->chercherCompte(iban);
+    CompteBancaire* compte = Banque::chercherCompte(iban);
 
     if (compte == nullptr)
     {
         return false;
     }
 
-    return compte->deposer(montant, description);
+    compte->deposer(montant, description);
 }
-bool CompteController::retir_montant(const QString& iban,
+//-----------------------------------------------------------------
+double CompteController::retir_montant(const QString& iban,
                                      double montant,
                                      const QString& desc){
-    CompteBancaire* compte=banque->chercherCompte(iban);
+    CompteBancaire* compte = Banque::chercherCompte(iban);
+
     if (compte == nullptr)
     {
         return false;
     }
 
-    return compte->retirer(montant, description);
+    return compte->retirer(montant, desc);
 
 }
+//-----------------------------------------------------------------
 bool CompteController::faireVirement(
     const QString& ibanSource,
     const QString& ibanDestination,
     double montant,
     const QString& description)
 {
-    CompteBancaire* source =
-        compteData.chercherCompte(ibanSource);
+    CompteBancaire* source = Banque::chercherCompte(ibanSource);
+    CompteBancaire* destination = Banque::chercherCompte(ibanDestination);
 
-    CompteBancaire* destination =
-        compteData.chercherCompte(ibanDestination);
-
-    if(source == nullptr || destination == nullptr)
+    if (source == nullptr || destination == nullptr)
     {
         return false;
     }

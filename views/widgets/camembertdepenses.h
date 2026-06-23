@@ -1,10 +1,14 @@
-#ifndef CAMEMBERTDEPENSES_H
-#define CAMEMBERTDEPENSES_H
+#pragma once
 
-class CamembertDepenses
+#include <QWidget>
+
+class CamembertDepenses : public QWidget
 {
-public:
-    CamembertDepenses();
-};
+    Q_OBJECT
 
-#endif // CAMEMBERTDEPENSES_H
+public:
+    explicit CamembertDepenses(QWidget *parent = nullptr);
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+};

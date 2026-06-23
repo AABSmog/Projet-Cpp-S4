@@ -1,10 +1,18 @@
-#ifndef INDICATEURSOLDE_H
-#define INDICATEURSOLDE_H
+#pragma once
 
-class IndicateurSolde
+#include <QWidget>
+
+class QLabel;
+
+class IndicateurSolde : public QWidget
 {
+    Q_OBJECT
+
 public:
-    IndicateurSolde();
+    explicit IndicateurSolde(
+        const QString& titre,
+        const QString& valeur,
+        QWidget *parent = nullptr);
 };
 
-#endif // INDICATEURSOLDE_H
+

@@ -1,39 +1,21 @@
 #ifndef BANQUE_H
 #define BANQUE_H
 
+#include <QVector>
 #include <QString>
+#include "comptebancaire.h"
 
 class Banque
 {
 private:
-    int idBanque;
-    QString nom;
-    QString adresse;
-    QString telephone;
-    QString email;
+    static QVector<CompteBancaire> comptes;
 
 public:
-    Banque();
+    static bool ajouterCompte(const CompteBancaire& compte);
 
-    Banque(int idBanque,
-           const QString& nom,
-           const QString& adresse,
-           const QString& telephone,
-           const QString& email);
+    static CompteBancaire* chercherCompte(const QString& iban);
 
-    // Getters
-    int getIdBanque() const;
-    QString getNom() const;
-    QString getAdresse() const;
-    QString getTelephone() const;
-    QString getEmail() const;
-
-    // Setters
-    void setIdBanque(int idBanque);
-    void setNom(const QString& nom);
-    void setAdresse(const QString& adresse);
-    void setTelephone(const QString& telephone);
-    void setEmail(const QString& email);
+    static QVector<CompteBancaire> getComptes();
 };
 
 #endif // BANQUE_H

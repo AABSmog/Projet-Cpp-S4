@@ -2,7 +2,7 @@
 #include <QFile>
 #include <QTextStream>
 #include "mainwindow.h"
-
+#include "views/fenetreconnexion.h"
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
         file.close();
     }
 
-    MainWindow w;
+    FenetreConnexion w;
     w.show();
     return app.exec();
 }

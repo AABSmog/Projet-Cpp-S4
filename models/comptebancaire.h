@@ -1,6 +1,7 @@
 #ifndef COMPTEBANCAIRE_H
 #define COMPTEBANCAIRE_H
 #include "transaction.h"
+
 enum class TypeCompte { COURANT, EPARGNE, PROFESSIONNEL };
 enum class StatutCompte { ACTIF, BLOQUE, FERME };
 
@@ -12,7 +13,7 @@ public:
                    double soldeInitial = 0.0, StatutCompte statut=StatutCompte::ACTIF);
     // Methodes de transaction
     bool deposer(double montant, const QString& desc = "");
-    bool retirer(double montant, const QString& desc = "");
+    double retirer(double montant, const QString& desc = "");
     bool virer(CompteBancaire& dest, double montant);
     // Getter et setter
     double getSolde() const ;
@@ -27,7 +28,7 @@ public:
     // Statistiques
     double getSoldeMoyen(int jours = 30) const;
     QVector<double> getSoldesMensuels(int mois = 12) const;
-      static CompteBancaire* chercherCompte(const QString& iban);
+
 private:
     //LES ATTRIBUTS
     QString iban;

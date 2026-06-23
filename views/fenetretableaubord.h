@@ -1,10 +1,16 @@
-#ifndef FENETRETABLEAUBORD_H
-#define FENETRETABLEAUBORD_H
+#pragma once
 
-class FenetreTableauBord
+#include <QWidget>
+
+class QTableWidget;
+
+class FenetreTableauBord : public QWidget
 {
-public:
-    FenetreTableauBord();
-};
+    Q_OBJECT
 
-#endif // FENETRETABLEAUBORD_H
+public:
+    explicit FenetreTableauBord(QWidget *parent = nullptr);
+
+private:
+    QTableWidget* tableHistorique;
+};

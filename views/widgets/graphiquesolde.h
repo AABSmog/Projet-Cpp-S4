@@ -1,10 +1,14 @@
-#ifndef GRAPHIQUESOLDE_H
-#define GRAPHIQUESOLDE_H
+#pragma once
 
-class GraphiqueSolde
+#include <QWidget>
+
+class GraphiqueSolde : public QWidget
 {
-public:
-    GraphiqueSolde();
-};
+    Q_OBJECT
 
-#endif // GRAPHIQUESOLDE_H
+public:
+    explicit GraphiqueSolde(QWidget *parent = nullptr);
+
+protected:
+    void paintEvent(QPaintEvent* event) override;
+};
