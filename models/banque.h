@@ -12,6 +12,7 @@ private:
 
 public:
     static bool ajouterCompte(const CompteBancaire& compte);
+    static void viderComptes();
 
     static CompteBancaire* chercherCompte(const QString& iban);
 

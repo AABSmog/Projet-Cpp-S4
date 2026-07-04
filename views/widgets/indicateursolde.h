@@ -13,6 +13,11 @@ public:
         const QString& titre,
         const QString& valeur,
         QWidget *parent = nullptr);
+
+    void setValeur(const QString& valeur);
+
+private:
+    QLabel* valeurLabel;
 };
 
 

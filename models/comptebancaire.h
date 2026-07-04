@@ -13,7 +13,7 @@ public:
                    double soldeInitial = 0.0, StatutCompte statut=StatutCompte::ACTIF);
     // Methodes de transaction
     bool deposer(double montant, const QString& desc = "");
-    double retirer(double montant, const QString& desc = "");
+    bool retirer(double montant, const QString& desc = "");
     bool virer(CompteBancaire& dest, double montant);
     // Getter et setter
     double getSolde() const ;
@@ -25,6 +25,7 @@ public:
     StatutCompte getStatut() const ;
     void setStatut(StatutCompte statut);
     QVector<Transaction> getHistorique(int n = 30) const;
+    void chargerHistorique(const QVector<Transaction>& transactions);
     // Statistiques
     double getSoldeMoyen(int jours = 30) const;
     QVector<double> getSoldesMensuels(int mois = 12) const;

@@ -42,8 +42,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         main.h main.cpp
         views/FenetreOperations.h
         views/FenetreOperations.cpp
-        views/widgets/GraphiqueSolde.h
-        views/widgets/GraphiqueSolde.cpp
+        views/widgets/graphiquesolde.h
+        views/widgets/graphiquesolde.cpp
 
 
     )

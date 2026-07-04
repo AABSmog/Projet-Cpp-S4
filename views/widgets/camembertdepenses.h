@@ -8,7 +8,12 @@ class CamembertDepenses : public QWidget
 
 public:
     explicit CamembertDepenses(QWidget *parent = nullptr);
+    void setDonnees(double revenus, double depenses);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
+
+private:
+    double revenus;
+    double depenses;
 };

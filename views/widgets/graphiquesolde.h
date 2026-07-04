@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QWidget>
+#include <QVector>
 
 class GraphiqueSolde : public QWidget
 {
@@ -8,7 +9,11 @@ class GraphiqueSolde : public QWidget
 
 public:
     explicit GraphiqueSolde(QWidget *parent = nullptr);
+    void setDonnees(const QVector<double>& valeurs);
 
 protected:
     void paintEvent(QPaintEvent* event) override;
+
+private:
+    QVector<double> valeurs;
 };

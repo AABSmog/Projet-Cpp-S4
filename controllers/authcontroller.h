@@ -1,12 +1,15 @@
 #ifndef AUTHCONTROLLER_H
 #define AUTHCONTROLLER_H
+
 #include <QString>
-#include <QCryptographicHash>
+
 class AuthController
 {
 public:
     AuthController();
-    QString hashPassword(const QString& password);
+
+    QString hashPassword(const QString& password) const;
+    bool verifierConnexion(const QString& login, const QString& motDePasse);
 
 };
 

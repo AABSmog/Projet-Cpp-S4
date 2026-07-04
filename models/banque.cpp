@@ -16,6 +16,11 @@ bool Banque::ajouterCompte(const CompteBancaire& compte)
     return true;
 }
 
+void Banque::viderComptes()
+{
+    comptes.clear();
+}
+
 CompteBancaire* Banque::chercherCompte(const QString& iban)
 {
     for (CompteBancaire& compte : comptes)

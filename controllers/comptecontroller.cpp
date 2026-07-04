@@ -14,10 +14,10 @@ bool CompteController::faire_depot(const QString& iban,
         return false;
     }
 
-    compte->deposer(montant, description);
+    return compte->deposer(montant, description);
 }
 //-----------------------------------------------------------------
-double CompteController::retir_montant(const QString& iban,
+bool CompteController::retir_montant(const QString& iban,
                                      double montant,
                                      const QString& desc){
     CompteBancaire* compte = Banque::chercherCompte(iban);

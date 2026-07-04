@@ -11,12 +11,20 @@ IndicateurSolde::IndicateurSolde(
 {
     auto* layout = new QVBoxLayout(this);
 
-    layout->addWidget(new QLabel(titre));
-    layout->addWidget(new QLabel(valeur));
+    auto* titreLabel = new QLabel(titre);
+    valeurLabel = new QLabel(valeur);
+
+    layout->addWidget(titreLabel);
+    layout->addWidget(valeurLabel);
 
     setStyleSheet(
         "background:#1b3a7a;"
         "border-radius:10px;"
         "padding:10px;"
         );
+}
+
+void IndicateurSolde::setValeur(const QString& valeur)
+{
+    valeurLabel->setText(valeur);
 }

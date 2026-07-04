@@ -1,9 +1,10 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
+#include <QString>
+
 class Client
 {
-public:
 public:
     Client();
 

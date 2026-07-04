@@ -1,5 +1,12 @@
 #include "transaction.h"
 
+Transaction::Transaction()
+        : id(0),
+            montant(0.0),
+            soldeApres(0.0)
+{
+}
+
 // Constructeur
 Transaction::Transaction(int id,
                          const QDateTime& date,

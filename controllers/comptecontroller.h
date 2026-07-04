@@ -10,9 +10,9 @@ public:
                      double montant,
                      const QString& desc);
     //elle va recevoir le depot (montant et desc) puis appelé la recherche du compte
-    double retir_montant(const QString& iban,
-                     double montant,
-                     const QString& desc);
+    bool retir_montant(const QString& iban,
+                      double montant,
+                      const QString& desc);
      //elle va recevoir le montant (montant et desc) puis appelé la recherche du compte
     bool faireVirement(const QString& ibanSource,
                        const QString& ibanDestination,
