@@ -61,6 +61,32 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
 
     auto* topBar = new QHBoxLayout;
     auto* titre = new QLabel("Tableau de Bord");
+    topBar->addWidget(titre);
+    topBar->addStretch();
+
+    btnDeconnexion = new QPushButton("Deconnexion");
+    btnDeconnexion->setStyleSheet(
+        "QPushButton { background-color: #C0392B; color: white; border: none; "
+        "border-radius: 6px; padding: 8px 16px; font-weight: bold; }"
+        "QPushButton:hover { background-color: #922B21; }");
+    connect(btnDeconnexion, &QPushButton::clicked, this, &FenetreTableauBord::deconnecter);
+    topBar->addWidget(btnDeconnexion);
+
+    auto* cartes = new QHBoxLayout;
+    carteSoldeTotal = new IndicateurSolde("Solde total", "0 FCFA");
+    carteNombreComptes = new IndicateurSolde("Comptes", "0");
+    carteNombrePrets = new IndicateurSolde("Prets", "0");
+    carteSoldeMoyen = new IndicateurSolde("Solde moyen", "0 FCFA");
+    cartes->addWidget(carteSoldeTotal);
+    cartes->addWidget(carteNombreComptes);
+    cartes->addWidget(carteNombrePrets);
+    cartes->addWidget(carteSoldeMoyen);
+
+    tableHistorique = new QTableWidget;
+    tableHistorique->setColumnCount(5);
+    tableHistorique->setHorizontalHeaderLabels({"Date", "IBAN", "Type", "Montant", "Solde après"});
+    tableHistorique->horizontalHeader()->setStretchLastSection(true);
+    tableHistorique->setAlternatingRowColors(true);
 
     cmbSelecteurCompte = new QComboBox;
     cmbSelecteurCompte->setMinimumWidth(200);
@@ -80,27 +106,8 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
         "QPushButton:hover { background-color: #1E8449; }");
     connect(btnExportCSV, &QPushButton::clicked, this, [this]() { exporterCSV(); });
 
-    btnDeconnexion = new QPushButton("Deconnexion");
-    btnDeconnexion->setStyleSheet(
-        "QPushButton { background-color: #C0392B; color: white; border: none; "
-        "border-radius: 6px; padding: 8px 16px; font-weight: bold; }"
-        "QPushButton:hover { background-color: #922B21; }");
-    topBar->addWidget(titre);
-    topBar->addStretch();
     topBar->addWidget(cmbSelecteurCompte);
     topBar->addWidget(btnExportCSV);
-    topBar->addWidget(btnDeconnexion);
-    connect(btnDeconnexion, &QPushButton::clicked, this, &FenetreTableauBord::deconnecter);
-
-    auto* cartes = new QHBoxLayout;
-    carteSoldeTotal = new IndicateurSolde("Solde total", "0 FCFA");
-    carteNombreComptes = new IndicateurSolde("Comptes", "0");
-    carteNombrePrets = new IndicateurSolde("Prets", "0");
-    carteSoldeMoyen = new IndicateurSolde("Solde moyen", "0 FCFA");
-    cartes->addWidget(carteSoldeTotal);
-    cartes->addWidget(carteNombreComptes);
-    cartes->addWidget(carteNombrePrets);
-    cartes->addWidget(carteSoldeMoyen);
 
     mettreAJourCartes();
     btnExportCSV->setVisible(CompteController::estAdmin());
@@ -108,12 +115,14 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
     if (!CompteController::estAdmin()) {
         QVector<CompteBancaire> mesComptes = CompteController::getComptesPourClient(
             CompteController::getClientConnecteId());
+        cmbSelecteurCompte->blockSignals(true);
         cmbSelecteurCompte->clear();
         for (const CompteBancaire& c : mesComptes) {
             cmbSelecteurCompte->addItem(
                 CompteController::getIban(c) + " - " + CompteController::getTypeString(c),
                 CompteController::getIban(c));
         }
+        cmbSelecteurCompte->blockSignals(false);
         if (cmbSelecteurCompte->count() > 1)
             cmbSelecteurCompte->setVisible(true);
     }
@@ -160,11 +169,6 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
     connect(btnCreationCompte, &QPushButton::clicked, this, [this]() { creerCompteDepuisLeDashboard(); });
     blocCreationCompte = blocCreation;
 
-    tableHistorique = new QTableWidget;
-    tableHistorique->setColumnCount(5);
-    tableHistorique->setHorizontalHeaderLabels({"Date", "IBAN", "Type", "Montant", "Solde après"});
-    tableHistorique->horizontalHeader()->setStretchLastSection(true);
-    tableHistorique->setAlternatingRowColors(true);
     {
         QVector<CompteBancaire> hComptes = CompteController::estAdmin()
             ? CompteController::getComptes()
@@ -175,13 +179,11 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
     fenetreOperations = new FenetreOperations;
     connect(fenetreOperations, &FenetreOperations::operationEffectuee, this, &FenetreTableauBord::rafraichirVue);
     fenetreStatistiques = new FenetreStatistiques;
-    fenetreStatsIndividuelles = new FenetreStatsIndividuelles;
 
     onglets = new QTabWidget;
     onglets->addTab(fenetreOperations, "Operations");
     if (CompteController::estAdmin())
         onglets->addTab(fenetreStatistiques, "Statistiques globales");
-    onglets->addTab(fenetreStatsIndividuelles, "Mon Compte");
     onglets->addTab(tableHistorique, "Historique");
     onglets->addTab(blocCreationCompte, "Creer compte");
 
@@ -286,7 +288,7 @@ void FenetreTableauBord::creerCompteDepuisLeDashboard()
     CompteController::rechargerComptes();
     rafraichirVue();
     fenetreStatistiques->actualiser();
-    fenetreStatsIndividuelles->actualiser();
+    // fenetreStatsIndividuelles->actualiser();
     QMessageBox::information(this, "Creation", "Compte cree et enregistre dans la base de donnees.");
 }
 
