@@ -4,46 +4,14 @@
 #include "widgets/camembertdepenses.h"
 #include "widgets/indicateursolde.h"
 
-#include "../data/datamanager.h"
-#include "../models/banque.h"
+#include "../controllers/comptecontroller.h"
+#include "../controllers/statcontroller.h"
+#include "../models/comptebancaire.h"
 #include "../models/transaction.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <algorithm>
-
-static double montantSigne(const Transaction& transaction)
-{
-    return transaction.getType().contains("retrait", Qt::CaseInsensitive)
-        ? -transaction.getMontant()
-        : transaction.getMontant();
-}
-
-static QVector<double> construireCourbeSolde(const QVector<Transaction>& transactions, double soldeActuel)
-{
-    QVector<Transaction> tries = transactions;
-    std::sort(tries.begin(), tries.end(), [](const Transaction& left, const Transaction& right) {
-        if (left.getDate() == right.getDate()) {
-            return left.getId() < right.getId();
-        }
-        return left.getDate() < right.getDate();
-    });
-
-    double cumul = soldeActuel;
-    for (const Transaction& transaction : tries) {
-        cumul -= montantSigne(transaction);
-    }
-
-    QVector<double> valeurs;
-    valeurs.append(cumul);
-    for (const Transaction& transaction : tries) {
-        cumul += montantSigne(transaction);
-        valeurs.append(cumul);
-    }
-
-    return valeurs;
-}
 
 FenetreStatistiques::FenetreStatistiques(QWidget *parent)
     : QWidget(parent)
@@ -75,14 +43,10 @@ FenetreStatistiques::FenetreStatistiques(QWidget *parent)
     indicateursLayout->addWidget(depenses);
     indicateursLayout->addWidget(soldeMoyen);
 
-    // Graphique
-    GraphiqueSolde* graphique =
-        new GraphiqueSolde;
+    GraphiqueSolde* graphique = new GraphiqueSolde;
     graphique->setMinimumHeight(220);
 
-    // Camembert
-    CamembertDepenses* camembert =
-        new CamembertDepenses;
+    CamembertDepenses* camembert = new CamembertDepenses;
     camembert->setObjectName("statCamembert");
 
     mainLayout->addWidget(titre);
@@ -95,56 +59,28 @@ FenetreStatistiques::FenetreStatistiques(QWidget *parent)
 
 void FenetreStatistiques::actualiser()
 {
-    const QVector<CompteBancaire> comptes = DataManager::instance().chargerComptes();
-    const QVector<Transaction> transactions = DataManager::instance().chargerToutesTransactions();
+    QVector<CompteBancaire> comptes = CompteController::getComptes();
+    QVector<Transaction> transactions = CompteController::getToutesTransactions();
 
-    double soldeActuel = 0.0;
-    double revenusTotaux = 0.0;
-    double depensesTotales = 0.0;
-    for (const CompteBancaire& compte : comptes) {
-        soldeActuel += compte.getSolde();
-    }
+    double soldeActuel = StatController::calculerSoldeTotal(comptes);
+    double totalDepots = 0.0, totalRetraits = 0.0;
+    StatController::calculerStatsTransactions(transactions, &totalDepots, &totalRetraits);
+    double moyenne = StatController::calculerSoldeMoyen(comptes);
 
-    for (const Transaction& transaction : transactions) {
-        if (transaction.getType().contains("retrait", Qt::CaseInsensitive)) {
-            depensesTotales += transaction.getMontant();
-        } else {
-            revenusTotaux += transaction.getMontant();
-        }
-    }
-
-    double moyenne = 0.0;
-    if (!comptes.isEmpty()) {
-        for (const CompteBancaire& compte : comptes) {
-            moyenne += compte.getSolde();
-        }
-        moyenne /= comptes.size();
-    }
-
-    // Widgets enfants créés dans le constructeur, on rafraîchit via une reconstruction légère.
-    if (auto* widgetSolde = findChild<IndicateurSolde*>("statSolde")) {
+    if (auto* widgetSolde = findChild<IndicateurSolde*>("statSolde"))
         widgetSolde->setValeur(QString::number(soldeActuel, 'f', 0) + " FCFA");
-    }
-
-    if (auto* widgetRevenus = findChild<IndicateurSolde*>("statRevenus")) {
-        widgetRevenus->setValeur(QString::number(revenusTotaux, 'f', 0) + " FCFA");
-    }
-
-    if (auto* widgetDepenses = findChild<IndicateurSolde*>("statDepenses")) {
-        widgetDepenses->setValeur(QString::number(depensesTotales, 'f', 0) + " FCFA");
-    }
-
-    if (auto* widgetMoyen = findChild<IndicateurSolde*>("statSoldeMoyen")) {
+    if (auto* widgetRevenus = findChild<IndicateurSolde*>("statRevenus"))
+        widgetRevenus->setValeur(QString::number(totalDepots, 'f', 0) + " FCFA");
+    if (auto* widgetDepenses = findChild<IndicateurSolde*>("statDepenses"))
+        widgetDepenses->setValeur(QString::number(totalRetraits, 'f', 0) + " FCFA");
+    if (auto* widgetMoyen = findChild<IndicateurSolde*>("statSoldeMoyen"))
         widgetMoyen->setValeur(QString::number(moyenne, 'f', 0) + " FCFA");
-    }
 
     auto* graphique = findChild<GraphiqueSolde*>();
-    if (graphique != nullptr) {
-        graphique->setDonnees(construireCourbeSolde(transactions, soldeActuel));
-    }
+    if (graphique)
+        graphique->setDonnees(StatController::construireCourbeSolde(transactions, soldeActuel));
 
     auto* camembert = findChild<CamembertDepenses*>("statCamembert");
-    if (camembert != nullptr) {
-        camembert->setDonnees(revenusTotaux, depensesTotales);
-    }
+    if (camembert)
+        camembert->setDonnees(totalDepots, totalRetraits);
 }

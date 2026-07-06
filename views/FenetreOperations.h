@@ -13,6 +13,9 @@ class FenetreOperations : public QWidget
 public:
     explicit FenetreOperations(QWidget* parent = nullptr);
 
+signals:
+    void operationEffectuee();
+
 private:
     void executerOperation();
 

@@ -3,6 +3,7 @@
 #include <QSqlError>
 #include <QDebug>
 #include <QDateTime>
+#include <QRandomGenerator>
 
 DataManager::DataManager()
     : connectionName(QStringLiteral("bankvision_connection"))
@@ -104,90 +105,133 @@ bool DataManager::creerSchemas()
 bool DataManager::initialiserDonneesDemo()
 {
     QSqlQuery query(db);
+    if (query.exec("SELECT COUNT(*) FROM CLIENT") && query.next() && query.value(0).toInt() > 0)
+        return true;
 
-    if (query.exec("SELECT COUNT(*) FROM CLIENT") && query.next() && query.value(0).toInt() == 0) {
-        AuthController auth;
-        query.prepare(
-            "INSERT INTO CLIENT (nom, prenom, email, telephone, login, motDePasseHash, nbTentatives, dateVerrouillage) "
-            "VALUES (:nom, :prenom, :email, :telephone, :login, :hash, 0, '')");
-        query.bindValue(":nom", "Admin");
-        query.bindValue(":prenom", "BankVision");
-        query.bindValue(":email", "admin@bankvision.local");
-        query.bindValue(":telephone", "+000000000");
-        query.bindValue(":login", "admin");
-        query.bindValue(":hash", auth.hashPassword("admin123"));
-        if (!query.exec()) {
-            qDebug() << query.lastError().text();
-            return false;
-        }
+    auto rng = QRandomGenerator::global();
+    AuthController auth;
+    const QString hash = auth.hashPassword("admin123");
+
+    query.prepare(
+        "INSERT INTO CLIENT (nom, prenom, email, telephone, login, motDePasseHash, nbTentatives, dateVerrouillage) "
+        "VALUES (:nom, :prenom, :email, :telephone, :login, :hash, 0, '')");
+    query.bindValue(":nom", "Admin");
+    query.bindValue(":prenom", "BankVision");
+    query.bindValue(":email", "admin@bankvision.local");
+    query.bindValue(":telephone", "+000000000");
+    query.bindValue(":login", "admin");
+    query.bindValue(":hash", hash);
+    if (!query.exec()) return false;
+    const int adminId = query.lastInsertId().toInt();
+
+    QSqlQuery cq(db);
+    cq.prepare("INSERT INTO COMPTEBANCAIRE (iban, solde, type, statut, idClient) VALUES (?,?,?,?,?)");
+    cq.addBindValue("BV-0001"); cq.addBindValue(150000.0); cq.addBindValue(static_cast<int>(TypeCompte::COURANT));
+    cq.addBindValue(static_cast<int>(StatutCompte::ACTIF)); cq.addBindValue(adminId);
+    if (!cq.exec()) return false;
+    cq.addBindValue("BV-0002"); cq.addBindValue(80000.0); cq.addBindValue(static_cast<int>(TypeCompte::EPARGNE));
+    cq.addBindValue(static_cast<int>(StatutCompte::ACTIF)); cq.addBindValue(adminId);
+    if (!cq.exec()) return false;
+
+    const char* prenoms[] = {"Mamadou","Fatou","Ousmane","Aissatou","Modou","Khady","Ibrahima","Mariama",
+        "Cheikh","Aminata","Papa","Ndeye","Alioune","MameDiarra","Babacar","Awa","ElHadji","Sokhna",
+        "Moussa","Adama","Assane","Rama","Birane","Kine","Oumar","Magatte","Mame","Djibril","Fatimata",
+        "Souleymane","Anta","MamadouLamine","Ndeye","Malick","Rokhaya","Youssou","Therese","Massamba",
+        "Seynabou","Abdoulaye"};
+    const char* noms[] = {"Diop","Ndiaye","Fall","Sow","Mbaye","Diallo","Ba","Sy","Diagne","Cisse",
+        "Sow","Gueye","Sarr","Faye","Niang","Ba","Ndiaye","Diop","Fall","Diallo","Diouf","Thiam",
+        "Ndiaye","Ndiaye","Sy","Sene","Diop","Ndiaye","Diallo","Ba","Ndiaye","Fall","Diagne","Sall",
+        "Gueye","Ndour","Faye","Ndiaye","Diop","Wade"};
+
+    int clientIds[40];
+    for (int i = 0; i < 40; ++i) {
+        query.prepare("INSERT INTO CLIENT (nom, prenom, email, telephone, login, motDePasseHash, nbTentatives, dateVerrouillage) VALUES (?,?,?,?,?,?,0,'')");
+        query.addBindValue(noms[i]); query.addBindValue(prenoms[i]);
+        query.addBindValue(QString("%1.%2@bankvision.sn").arg(prenoms[i]).arg(noms[i]));
+        query.addBindValue("+22177" + QString::number(1000000 + i));
+        query.addBindValue(QString("%1.%2").arg(prenoms[i]).arg(noms[i])); query.addBindValue(hash);
+        if (!query.exec()) return false;
+        clientIds[i] = query.lastInsertId().toInt();
     }
 
-    if (query.exec("SELECT COUNT(*) FROM COMPTEBANCAIRE") && query.next() && query.value(0).toInt() == 0) {
-        QSqlQuery clientQuery(db);
-        clientQuery.prepare("SELECT idClient FROM CLIENT WHERE login = :login");
-        clientQuery.bindValue(":login", "admin");
-        if (!clientQuery.exec() || !clientQuery.next()) {
-            qDebug() << clientQuery.lastError().text();
-            return false;
-        }
+    struct Acc { int ci; TypeCompte tp; double si; };
+    Acc accs[50];
+    int ai = 0;
+    for (int i = 0; i < 10; ++i) {
+        accs[ai++] = {i, TypeCompte::COURANT, 100000.0 + rng->bounded(200) * 1000.0};
+        accs[ai++] = {i, TypeCompte::EPARGNE, 50000.0 + rng->bounded(100) * 1000.0};
+    }
+    for (int i = 10; i < 20; ++i) accs[ai++] = {i, TypeCompte::COURANT, 75000.0 + rng->bounded(150) * 1000.0};
+    for (int i = 20; i < 30; ++i) accs[ai++] = {i, TypeCompte::EPARGNE, 30000.0 + rng->bounded(80) * 1000.0};
+    for (int i = 30; i < 40; ++i) accs[ai++] = {i, TypeCompte::PROFESSIONNEL, 200000.0 + rng->bounded(300) * 1000.0};
 
-        const int idClient = clientQuery.value(0).toInt();
-        const QDateTime now = QDateTime::currentDateTime();
+    for (int a = 0; a < 50; ++a) {
+        QString iban = QString("SN-BV-2026-%1").arg(a + 1, 4, 10, QChar('0'));
+        cq.prepare("INSERT INTO COMPTEBANCAIRE (iban, solde, type, statut, idClient) VALUES (?,?,?,?,?)");
+        cq.addBindValue(iban); cq.addBindValue(accs[a].si);
+        cq.addBindValue(static_cast<int>(accs[a].tp));
+        cq.addBindValue(static_cast<int>(StatutCompte::ACTIF));
+        cq.addBindValue(clientIds[accs[a].ci]);
+        if (!cq.exec()) return false;
 
-        QSqlQuery compteQuery(db);
-        compteQuery.prepare(
-            "INSERT INTO COMPTEBANCAIRE (iban, solde, type, statut, idClient) "
-            "VALUES (:iban, :solde, :type, :statut, :idClient)");
-
-        const struct {
-            const char* iban;
-            double solde;
-            int type;
-        } comptes[] = {
-            {"BV-0001", 150000.0, static_cast<int>(TypeCompte::COURANT)},
-            {"BV-0002", 80000.0, static_cast<int>(TypeCompte::EPARGNE)}
+        double solde = accs[a].si;
+        auto tx = [&](int y, int m, int d, const QString& type, double delta, const QString& desc) {
+            solde += delta;
+            QSqlQuery tq(db);
+            tq.prepare("INSERT INTO TRANSACTIONS (iban, date, type, montant, soldeApres, description) VALUES (?,?,?,?,?,?)");
+            tq.addBindValue(iban);
+            tq.addBindValue(QDateTime(QDate(y, m, d), QTime(8 + rng->bounded(10), rng->bounded(60))).toString(Qt::ISODate));
+            tq.addBindValue(type); tq.addBindValue(qAbs(delta)); tq.addBindValue(solde); tq.addBindValue(desc);
+            if (!tq.exec()) qDebug() << "Tx error:" << tq.lastError().text();
         };
+        auto dep = [&](int y, int m, int d, double mt, const QString& desc) { tx(y, m, d, "depot", mt, desc); };
+        auto ret = [&](int y, int m, int d, double mt, const QString& desc) { tx(y, m, d, "retrait", -mt, desc); };
 
-        for (const auto& compte : comptes) {
-            compteQuery.bindValue(":iban", compte.iban);
-            compteQuery.bindValue(":solde", compte.solde);
-            compteQuery.bindValue(":type", compte.type);
-            compteQuery.bindValue(":statut", static_cast<int>(StatutCompte::ACTIF));
-            compteQuery.bindValue(":idClient", idClient);
-            if (!compteQuery.exec()) {
-                qDebug() << compteQuery.lastError().text();
-                return false;
+        tx(2026, 1, 2, "depot_initial", accs[a].si, "Depot initial");
+
+        if (accs[a].tp == TypeCompte::COURANT) {
+            for (int m = 1; m <= 6; ++m) {
+                dep(2026, m, 25 + rng->bounded(4), 250000.0 + rng->bounded(50) * 1000.0, "Salaire mensuel");
+                ret(2026, m, 1 + rng->bounded(5), 75000.0 + rng->bounded(10) * 1000.0, "Loyer");
+                ret(2026, m, 8 + rng->bounded(5), 15000.0 + rng->bounded(15) * 1000.0, "Courses alimentaires");
+                ret(2026, m, 12 + rng->bounded(5), 5000.0 + rng->bounded(10) * 1000.0, "Transport");
+                ret(2026, m, 18 + rng->bounded(5), 10000.0 + rng->bounded(20) * 1000.0, "Factures/EDF");
+                if (m % 2 == 1)
+                    ret(2026, m, 20 + rng->bounded(5), 25000.0 + rng->bounded(15) * 1000.0, "Shopping/Divers");
+                if (m % 2 == 0 && a % 20 < 10)
+                    tx(2026, m, 28, "virement", -50000.0, "Virement vers epargne");
+            }
+        } else if (accs[a].tp == TypeCompte::EPARGNE) {
+            for (int m = 1; m <= 6; ++m) {
+                dep(2026, m, 5 + rng->bounded(5), 25000.0 + rng->bounded(10) * 1000.0, "Epargne mensuelle");
+                if (m % 3 == 0)
+                    ret(2026, m, 20 + rng->bounded(5), 30000.0 + rng->bounded(20) * 1000.0, "Retrait epargne");
+            }
+        } else {
+            for (int m = 1; m <= 6; ++m) {
+                dep(2026, m, 5 + rng->bounded(3), 500000.0 + rng->bounded(100) * 1000.0, "Prestation client");
+                dep(2026, m, 15 + rng->bounded(3), 300000.0 + rng->bounded(80) * 1000.0, "Paiement facture");
+                ret(2026, m, 10 + rng->bounded(3), 150000.0 + rng->bounded(50) * 1000.0, "Fournisseurs");
+                ret(2026, m, 22 + rng->bounded(3), 100000.0 + rng->bounded(30) * 1000.0, "Charges sociales");
             }
         }
 
-        QSqlQuery transactionQuery(db);
-        transactionQuery.prepare(
-            "INSERT INTO TRANSACTIONS (iban, date, type, montant, soldeApres, description) "
-            "VALUES (:iban, :date, :type, :montant, :soldeApres, :description)");
-
-        transactionQuery.bindValue(":iban", "BV-0001");
-        transactionQuery.bindValue(":date", now.addMonths(-2).toString(Qt::ISODate));
-        transactionQuery.bindValue(":type", "depot");
-        transactionQuery.bindValue(":montant", 150000.0);
-        transactionQuery.bindValue(":soldeApres", 150000.0);
-        transactionQuery.bindValue(":description", "Capital initial");
-        if (!transactionQuery.exec()) {
-            qDebug() << transactionQuery.lastError().text();
-            return false;
+        if (rng->bounded(10) < 1 && a > 0) {
+            QString dest = QString("SN-BV-2026-%1").arg(rng->bounded(a) + 1, 4, 10, QChar('0'));
+            double mt = 25000.0 + rng->bounded(15) * 1000.0;
+            if (solde > mt)
+                tx(2026, 3 + rng->bounded(4), 15 + rng->bounded(10), "virement", -mt, QString("Virement vers %1").arg(dest));
         }
 
-        transactionQuery.bindValue(":iban", "BV-0001");
-        transactionQuery.bindValue(":date", now.addMonths(-1).toString(Qt::ISODate));
-        transactionQuery.bindValue(":type", "retrait");
-        transactionQuery.bindValue(":montant", 25000.0);
-        transactionQuery.bindValue(":soldeApres", 125000.0);
-        transactionQuery.bindValue(":description", "Frais de service");
-        if (!transactionQuery.exec()) {
-            qDebug() << transactionQuery.lastError().text();
-            return false;
-        }
+        bool negatif = (a == 5 || a == 12 || a == 18 || a == 25 || a == 33 || a == 39 || a == 44 || a == 48);
+        if (negatif && solde > 0)
+            ret(2026, 6, 28, solde + 5000.0, "Decouvert technique");
+
+        QSqlQuery uq(db);
+        uq.prepare("UPDATE COMPTEBANCAIRE SET solde = ? WHERE iban = ?");
+        uq.addBindValue(solde); uq.addBindValue(iban);
+        uq.exec();
     }
-
     return true;
 }
 
@@ -496,16 +540,18 @@ QVector<CompteBancaire> DataManager::chargerComptes() const
 {
     QVector<CompteBancaire> comptes;
     QSqlQuery query(db);
-    if (!query.exec("SELECT iban, solde, type, statut FROM COMPTEBANCAIRE ORDER BY iban")) {
+    if (!query.exec("SELECT iban, solde, type, statut, idClient FROM COMPTEBANCAIRE ORDER BY iban")) {
         return comptes;
     }
 
     while (query.next()) {
-        comptes.append(CompteBancaire(
+        CompteBancaire cb(
             query.value("iban").toString(),
             static_cast<TypeCompte>(query.value("type").toInt()),
             query.value("solde").toDouble(),
-            static_cast<StatutCompte>(query.value("statut").toInt())));
+            static_cast<StatutCompte>(query.value("statut").toInt()),
+            query.value("idClient").toInt());
+        comptes.append(cb);
     }
 
     return comptes;
@@ -564,7 +610,7 @@ CompteBancaire* DataManager::selectCompte(const QString& iban) const
 {
     QSqlQuery query(db);
     query.prepare(
-        "SELECT iban, solde, type, statut "
+        "SELECT iban, solde, type, statut, idClient "
         "FROM COMPTEBANCAIRE "
         "WHERE iban = :iban"
         );
@@ -582,11 +628,14 @@ CompteBancaire* DataManager::selectCompte(const QString& iban) const
         StatutCompte statut =
             static_cast<StatutCompte>(query.value("statut").toInt());
 
+        int idClient = query.value("idClient").toInt();
+
         return new CompteBancaire(
             ibanCompte,
             type,
             solde,
-            statut
+            statut,
+            idClient
             );
     }
 

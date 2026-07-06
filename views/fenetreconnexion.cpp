@@ -1,6 +1,8 @@
 #include "fenetreconnexion.h"
 #include "fenetretableaubord.h"
 
+#include "../controllers/comptecontroller.h"
+
 #include <QTabWidget>
 #include <QVBoxLayout>
 #include <QFormLayout>
@@ -12,10 +14,6 @@
 #include <QFrame>
 #include <QMessageBox>
 #include <QDoubleValidator>
-
-#include "../data/datamanager.h"
-#include "../models/banque.h"
-#include "../models/comptebancaire.h"
 
 FenetreConnexion::FenetreConnexion(QWidget *parent)
     : QWidget(parent)
@@ -166,32 +164,19 @@ void FenetreConnexion::creerClientEtCompte()
         return;
     }
 
-    AuthController localAuth;
     QString erreur;
-    const bool succes = DataManager::instance().creerClientEtCompte(
-        txtNom->text(),
-        txtPrenom->text(),
-        txtEmail->text(),
-        txtTelephone->text(),
-        txtLoginInscription->text(),
-        localAuth.hashPassword(txtPasswordInscription->text()),
-        txtIban->text(),
-        static_cast<TypeCompte>(cmbTypeCompte->currentIndex()),
-        soldeInitial,
-        &erreur);
+    const bool succes = CompteController::creerClientEtCompte(
+        txtNom->text(), txtPrenom->text(), txtEmail->text(), txtTelephone->text(),
+        txtLoginInscription->text(), txtPasswordInscription->text(),
+        txtIban->text(), cmbTypeCompte->currentIndex(), soldeInitial, &erreur);
 
     if (!succes) {
         QMessageBox::critical(this, "Creation", erreur.isEmpty() ? "Creation impossible." : erreur);
         return;
     }
 
-    Banque::viderComptes();
-    const QVector<CompteBancaire> comptes = DataManager::instance().chargerComptes();
-    for (const CompteBancaire& compte : comptes) {
-        Banque::ajouterCompte(compte);
-    }
+    CompteController::rechargerComptes();
 
-    QMessageBox::information(this,
-                             "Creation",
+    QMessageBox::information(this, "Creation",
                              "Client et compte crees et enregistres dans la base de donnees.");
 }
