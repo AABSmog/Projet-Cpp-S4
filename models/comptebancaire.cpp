@@ -6,11 +6,12 @@
 
     //Constructeur
     CompteBancaire::CompteBancaire(const QString& iban, TypeCompte type,
-                   double soldeInitial, StatutCompte statut){
+                   double soldeInitial, StatutCompte statut, int idClient){
         this->iban = iban;
         this->type = type;
         this->solde = soldeInitial;
         this->statut = statut;
+        this->idClient = idClient;
     }
     // Methodes de transaction
     bool CompteBancaire::deposer(double montant, const QString& desc){
@@ -65,6 +66,8 @@
     StatutCompte CompteBancaire::getStatut() const { return statut; }
     void CompteBancaire::setStatut(StatutCompte statut)
     {this->statut = statut;}
+    int CompteBancaire::getClientId() const { return idClient; }
+    void CompteBancaire::setClientId(int id) { idClient = id; }
     QVector<Transaction> CompteBancaire::getHistorique(int n) const{
         if (n <= 0 || historique.size() <= n) {
             return historique;

@@ -44,6 +44,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         views/FenetreOperations.cpp
         views/widgets/graphiquesolde.h
         views/widgets/graphiquesolde.cpp
+        views/FenetreStatsIndividuelles.h
+        views/FenetreStatsIndividuelles.cpp
 
 
     )

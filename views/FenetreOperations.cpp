@@ -80,6 +80,7 @@ void FenetreOperations::executerOperation()
     }
 
     if (succes) {
+        emit operationEffectuee();
         QMessageBox::information(this, "Operation", "Operation reussie.");
         return;
     }

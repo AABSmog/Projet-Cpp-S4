@@ -1,4 +1,5 @@
 #include "comptecontroller.h"
+#include "../data/datamanager.h"
 
 CompteController::CompteController() {}
 
@@ -46,4 +47,15 @@ bool CompteController::faireVirement(
     }
 
     return source->virer(*destination, montant);
+}
+
+void CompteController::rechargerComptes()
+{
+    Banque::viderComptes();
+    const QVector<CompteBancaire> comptes = DataManager::instance().chargerComptes();
+    for (const CompteBancaire& compte : comptes) {
+        CompteBancaire copie = compte;
+        copie.chargerHistorique(DataManager::instance().chargerTransactions(copie.getIBAN()));
+        Banque::ajouterCompte(copie);
+    }
 }
