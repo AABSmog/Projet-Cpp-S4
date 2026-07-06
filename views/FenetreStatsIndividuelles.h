@@ -2,6 +2,10 @@
 
 #include <QWidget>
 #include <QVector>
+<<<<<<< HEAD
+=======
+#include "../models/comptebancaire.h"
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
 
 class CompteBancaire;
 class QComboBox;

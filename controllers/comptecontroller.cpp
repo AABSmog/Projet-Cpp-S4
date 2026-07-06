@@ -1,4 +1,5 @@
 #include "comptecontroller.h"
+<<<<<<< HEAD
 #include "authcontroller.h"
 #include "../data/datamanager.h"
 #include "../models/banque.h"
@@ -6,6 +7,9 @@
 #include "../models/client.h"
 #include "../models/transaction.h"
 #include <algorithm>
+=======
+#include "../data/datamanager.h"
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
 
 CompteController::CompteController() {}
 
@@ -32,6 +36,7 @@ bool CompteController::faireVirement(const QString& ibanSource, const QString& i
     return source->virer(*destination, montant);
 }
 
+<<<<<<< HEAD
 bool CompteController::creerComptePourClient(const QString& iban, int typeIndex,
                                               double soldeInitial, QString* erreur)
 {
@@ -39,6 +44,8 @@ bool CompteController::creerComptePourClient(const QString& iban, int typeIndex,
         iban, static_cast<TypeCompte>(typeIndex), soldeInitial, erreur);
 }
 
+=======
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
 void CompteController::rechargerComptes()
 {
     Banque::viderComptes();
@@ -48,6 +55,7 @@ void CompteController::rechargerComptes()
         copie.chargerHistorique(DataManager::instance().chargerTransactions(copie.getIBAN()));
         Banque::ajouterCompte(copie);
     }
+<<<<<<< HEAD
 }
 
 QVector<CompteBancaire> CompteController::getComptes() { return Banque::getComptes(); }
@@ -130,3 +138,6 @@ QVector<Transaction> CompteController::trierTransactionsParDate(const QVector<Tr
     });
     return tries;
 }
+=======
+}
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154

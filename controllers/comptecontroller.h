@@ -12,6 +12,7 @@ class CompteController
 {
 public:
     CompteController();
+<<<<<<< HEAD
 
     bool faire_depot(const QString& iban, double montant, const QString& desc);
     bool retir_montant(const QString& iban, double montant, const QString& desc);
@@ -57,6 +58,19 @@ public:
     static bool estUnRetrait(const Transaction& t);
 
     static QVector<Transaction> trierTransactionsParDate(const QVector<Transaction>& txns);
+=======
+    bool faire_depot(const QString& iban,
+                     double montant,
+                     const QString& desc);
+    bool retir_montant(const QString& iban,
+                      double montant,
+                      const QString& desc);
+    bool faireVirement(const QString& ibanSource,
+                       const QString& ibanDestination,
+                       double montant,
+                       const QString& description);
+    static void rechargerComptes();
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
 };
 
 #endif

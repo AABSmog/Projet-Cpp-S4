@@ -7,6 +7,12 @@
 #include "../controllers/comptecontroller.h"
 #include "../controllers/statcontroller.h"
 #include "../controllers/authcontroller.h"
+<<<<<<< HEAD
+=======
+#include "../controllers/comptecontroller.h"
+#include "../data/datamanager.h"
+#include "../models/banque.h"
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
 #include "../models/transaction.h"
 #include "../models/comptebancaire.h"
 #include "../models/client.h"
@@ -27,19 +33,80 @@
 #include <QFileDialog>
 #include <QFile>
 #include <QTextStream>
+<<<<<<< HEAD
+=======
+#include <algorithm>
+
+#include "../models/client.h"
+
+static QVector<Transaction> trierTransactionsChronologiquement(QVector<Transaction> transactions)
+{
+    std::sort(transactions.begin(), transactions.end(), [](const Transaction& left, const Transaction& right) {
+        if (left.getDate() == right.getDate()) {
+            return left.getId() < right.getId();
+        }
+
+        return left.getDate() < right.getDate();
+    });
+
+    return transactions;
+}
+
+struct VueDashboardStats
+{
+    double soldeTotal = 0.0;
+    double soldeMoyen = 0.0;
+    int nombreComptes = 0;
+    int nombrePrets = 0;
+};
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
 
 static QString formatFcfa(double valeur)
 {
     return QString::number(valeur, 'f', 0) + " FCFA";
 }
 
+<<<<<<< HEAD
 static void remplirHistorique(QTableWidget* table, const QVector<CompteBancaire>& comptes)
+=======
+static QString typeCompteString(TypeCompte type)
+{
+    switch (type) {
+        case TypeCompte::COURANT: return "Courant";
+        case TypeCompte::EPARGNE: return "Epargne";
+        case TypeCompte::PROFESSIONNEL: return "Professionnel";
+    }
+    return "Inconnu";
+}
+
+static bool estAdmin()
+{
+    const Client* client = DataManager::instance().clientConnecte();
+    return client != nullptr && client->getLogin() == "admin";
+}
+
+static QVector<CompteBancaire> comptesPourClient(const QVector<CompteBancaire>& comptes)
+{
+    const Client* client = DataManager::instance().clientConnecte();
+    if (!client) return comptes;
+    int id = client->getIdClient();
+    if (id == 0) return comptes;
+    QVector<CompteBancaire> filtres;
+    for (const auto& c : comptes) {
+        if (c.getClientId() == id) filtres.append(c);
+    }
+    return filtres.isEmpty() ? comptes : filtres;
+}
+
+static VueDashboardStats calculerStats(const QVector<CompteBancaire>& comptes)
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
 {
     table->clearContents();
     table->setRowCount(0);
     if (comptes.isEmpty()) return;
     int row = 0;
     for (const CompteBancaire& compte : comptes) {
+<<<<<<< HEAD
         QVector<Transaction> histo = CompteController::getHistorique(compte, 10);
         table->setRowCount(table->rowCount() + histo.size());
         for (const Transaction& t : histo) {
@@ -48,6 +115,37 @@ static void remplirHistorique(QTableWidget* table, const QVector<CompteBancaire>
             table->setItem(row, 2, new QTableWidgetItem(CompteController::getTransactionType(t)));
             table->setItem(row, 3, new QTableWidgetItem(QString::number(CompteController::getMontant(t), 'f', 0)));
             table->setItem(row, 4, new QTableWidgetItem(QString::number(CompteController::getSoldeApres(t), 'f', 0)));
+=======
+        stats.soldeTotal += compte.getSolde();
+        stats.soldeMoyen += compte.getSoldeMoyen();
+        ++nombreSoldes;
+    }
+
+    if (nombreSoldes > 0) {
+        stats.soldeMoyen /= nombreSoldes;
+    }
+
+    return stats;
+}
+
+static void remplirHistorique(QTableWidget* tableHistorique, const QVector<CompteBancaire>& comptes)
+{
+    tableHistorique->clearContents();
+    tableHistorique->setRowCount(0);
+
+    if (comptes.isEmpty()) return;
+
+    int row = 0;
+    for (const CompteBancaire& compte : comptes) {
+        const QVector<Transaction> historique = compte.getHistorique(10);
+        tableHistorique->setRowCount(tableHistorique->rowCount() + historique.size());
+        for (const Transaction& t : historique) {
+            tableHistorique->setItem(row, 0, new QTableWidgetItem(t.getDate().toString("dd/MM/yyyy HH:mm")));
+            tableHistorique->setItem(row, 1, new QTableWidgetItem(compte.getIBAN()));
+            tableHistorique->setItem(row, 2, new QTableWidgetItem(t.getType()));
+            tableHistorique->setItem(row, 3, new QTableWidgetItem(QString::number(t.getMontant(), 'f', 0)));
+            tableHistorique->setItem(row, 4, new QTableWidgetItem(QString::number(t.getSoldeApres(), 'f', 0)));
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
             ++row;
         }
     }
@@ -62,15 +160,23 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
 
     auto* topBar = new QHBoxLayout;
     auto* titre = new QLabel("Tableau de Bord");
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
 
     cmbSelecteurCompte = new QComboBox;
     cmbSelecteurCompte->setMinimumWidth(200);
     cmbSelecteurCompte->setVisible(false);
     connect(cmbSelecteurCompte, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this]() {
         mettreAJourCartes();
+<<<<<<< HEAD
         QVector<CompteBancaire> hComptes = CompteController::estAdmin()
             ? CompteController::getComptes()
             : CompteController::getComptesPourClient(CompteController::getClientConnecteId());
+=======
+        QVector<CompteBancaire> hComptes = comptesPourClient(Banque::getComptes());
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
         remplirHistorique(tableHistorique, hComptes);
     });
 
@@ -81,6 +187,11 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
         "QPushButton:hover { background-color: #1E8449; }");
     connect(btnExportCSV, &QPushButton::clicked, this, [this]() { exporterCSV(); });
 
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> f820f35defca2484d81e938fe98d949fd62a22f8
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
     btnDeconnexion = new QPushButton("Deconnexion");
     btnDeconnexion->setStyleSheet(
         "QPushButton { background-color: #C0392B; color: white; border: none; "
@@ -88,8 +199,16 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
         "QPushButton:hover { background-color: #922B21; }");
     topBar->addWidget(titre);
     topBar->addStretch();
+<<<<<<< HEAD
     topBar->addWidget(cmbSelecteurCompte);
     topBar->addWidget(btnExportCSV);
+=======
+<<<<<<< HEAD
+    topBar->addWidget(cmbSelecteurCompte);
+    topBar->addWidget(btnExportCSV);
+=======
+>>>>>>> f820f35defca2484d81e938fe98d949fd62a22f8
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
     topBar->addWidget(btnDeconnexion);
 
     connect(btnDeconnexion, &QPushButton::clicked, this, &FenetreTableauBord::deconnecter);
@@ -108,6 +227,7 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
 
     mettreAJourCartes();
 
+<<<<<<< HEAD
     btnExportCSV->setVisible(CompteController::estAdmin());
 
     if (!CompteController::estAdmin()) {
@@ -118,11 +238,28 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
             cmbSelecteurCompte->addItem(
                 CompteController::getIban(c) + " - " + CompteController::getTypeString(c),
                 CompteController::getIban(c));
+=======
+<<<<<<< HEAD
+    btnExportCSV->setVisible(estAdmin());
+
+    if (!estAdmin()) {
+        QVector<CompteBancaire> mesComptes = comptesPourClient(Banque::getComptes());
+        cmbSelecteurCompte->clear();
+        for (const CompteBancaire& c : mesComptes) {
+            cmbSelecteurCompte->addItem(
+                c.getIBAN() + " - " + typeCompteString(c.getType()),
+                c.getIBAN());
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
         }
         if (cmbSelecteurCompte->count() > 1)
             cmbSelecteurCompte->setVisible(true);
     }
 
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> f820f35defca2484d81e938fe98d949fd62a22f8
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
     auto* blocCreation = new QGroupBox("Creation de compte pour le client connecte");
     auto* form = new QFormLayout(blocCreation);
 
@@ -177,9 +314,13 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
     tableHistorique->setAlternatingRowColors(true);
 
     {
+<<<<<<< HEAD
         QVector<CompteBancaire> hComptes = CompteController::estAdmin()
             ? CompteController::getComptes()
             : CompteController::getComptesPourClient(CompteController::getClientConnecteId());
+=======
+        QVector<CompteBancaire> hComptes = estAdmin() ? Banque::getComptes() : comptesPourClient(Banque::getComptes());
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
         remplirHistorique(tableHistorique, hComptes);
     }
 
@@ -191,8 +332,14 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
 
     onglets = new QTabWidget;
     onglets->addTab(fenetreOperations, "Operations");
+<<<<<<< HEAD
     if (CompteController::estAdmin())
         onglets->addTab(fenetreStatistiques, "Statistiques globales");
+=======
+    if (estAdmin()) {
+        onglets->addTab(fenetreStatistiques, "Statistiques globales");
+    }
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
     onglets->addTab(fenetreStatsIndividuelles, "Mon Compte");
     onglets->addTab(tableHistorique, "Historique");
     onglets->addTab(blocCreationCompte, "Creer compte");
@@ -204,6 +351,7 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
 
 void FenetreTableauBord::rafraichirVue()
 {
+<<<<<<< HEAD
     if (!CompteController::estAdmin()) {
         QString courant = cmbSelecteurCompte->currentData().toString();
         cmbSelecteurCompte->blockSignals(true);
@@ -216,11 +364,26 @@ void FenetreTableauBord::rafraichirVue()
                 CompteController::getIban(mesComptes[i]) + " - " + CompteController::getTypeString(mesComptes[i]),
                 CompteController::getIban(mesComptes[i]));
             if (CompteController::getIban(mesComptes[i]) == courant) idx = i;
+=======
+<<<<<<< HEAD
+    if (!estAdmin()) {
+        QString courant = cmbSelecteurCompte->currentData().toString();
+        cmbSelecteurCompte->blockSignals(true);
+        cmbSelecteurCompte->clear();
+        QVector<CompteBancaire> mesComptes = comptesPourClient(Banque::getComptes());
+        int idx = 0;
+        for (int i = 0; i < mesComptes.size(); ++i) {
+            cmbSelecteurCompte->addItem(
+                mesComptes[i].getIBAN() + " - " + typeCompteString(mesComptes[i].getType()),
+                mesComptes[i].getIBAN());
+            if (mesComptes[i].getIBAN() == courant) idx = i;
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
         }
         cmbSelecteurCompte->setCurrentIndex(idx);
         cmbSelecteurCompte->setVisible(cmbSelecteurCompte->count() > 1);
         cmbSelecteurCompte->blockSignals(false);
     }
+<<<<<<< HEAD
     mettreAJourCartes();
     QVector<CompteBancaire> hComptes = CompteController::estAdmin()
         ? CompteController::getComptes()
@@ -244,27 +407,74 @@ void FenetreTableauBord::mettreAJourCartes()
         carteSoldeMoyen->setTitre("Solde moyen");
         carteSoldeMoyen->setValeur(formatFcfa(moyenne));
     } else {
+=======
+=======
+>>>>>>> f820f35defca2484d81e938fe98d949fd62a22f8
+    mettreAJourCartes();
+    QVector<CompteBancaire> hComptes = estAdmin() ? Banque::getComptes() : comptesPourClient(Banque::getComptes());
+    remplirHistorique(tableHistorique, hComptes);
+}
+
+void FenetreTableauBord::mettreAJourCartes()
+{
+    const QVector<CompteBancaire> comptes = Banque::getComptes();
+
+    if (estAdmin()) {
+        const VueDashboardStats stats = calculerStats(comptes);
+        carteSoldeTotal->setTitre("Solde total");
+        carteSoldeTotal->setValeur(formatFcfa(stats.soldeTotal));
+        carteNombreComptes->setTitre("Comptes");
+        carteNombreComptes->setValeur(QString::number(stats.nombreComptes));
+        carteNombrePrets->setTitre("Prets");
+        carteNombrePrets->setValeur(QString::number(stats.nombrePrets));
+        carteSoldeMoyen->setTitre("Solde moyen");
+        carteSoldeMoyen->setValeur(formatFcfa(stats.soldeMoyen));
+    } else {
+<<<<<<< HEAD
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
         const CompteBancaire* compteClient = nullptr;
         QString selectedIban = cmbSelecteurCompte->currentData().toString();
         if (!selectedIban.isEmpty()) {
             for (const CompteBancaire& c : comptes) {
+<<<<<<< HEAD
                 if (CompteController::getIban(c) == selectedIban) {
+=======
+                if (c.getIBAN() == selectedIban) {
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
                     compteClient = &c;
                     break;
                 }
             }
         }
         if (!compteClient) {
+<<<<<<< HEAD
             int clientId = CompteController::getClientConnecteId();
             for (const CompteBancaire& c : comptes) {
                 if (CompteController::getClientId(c) == clientId) {
                     compteClient = &c;
                     break;
                 }
+=======
+            for (const CompteBancaire& c : comptes) {
+                if (c.getClientId() == DataManager::instance().clientConnecte()->getIdClient()) {
+                    compteClient = &c;
+                    break;
+                }
+=======
+        const Client* client = DataManager::instance().clientConnecte();
+        int clientId = client ? client->getIdClient() : 0;
+        const CompteBancaire* compteClient = nullptr;
+        for (const CompteBancaire& c : comptes) {
+            if (c.getClientId() == clientId) {
+                compteClient = &c;
+                break;
+>>>>>>> f820f35defca2484d81e938fe98d949fd62a22f8
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
             }
         }
         if (compteClient) {
             carteSoldeTotal->setTitre("IBAN");
+<<<<<<< HEAD
             carteSoldeTotal->setValeur(CompteController::getIban(*compteClient));
             carteNombreComptes->setTitre("Type");
             carteNombreComptes->setValeur(CompteController::getTypeString(*compteClient));
@@ -272,6 +482,15 @@ void FenetreTableauBord::mettreAJourCartes()
             carteNombrePrets->setValeur(formatFcfa(CompteController::getSolde(*compteClient)));
             carteSoldeMoyen->setTitre("Solde moyen 30j");
             carteSoldeMoyen->setValeur(formatFcfa(CompteController::getSoldeMoyen(*compteClient)));
+=======
+            carteSoldeTotal->setValeur(compteClient->getIBAN());
+            carteNombreComptes->setTitre("Type");
+            carteNombreComptes->setValeur(typeCompteString(compteClient->getType()));
+            carteNombrePrets->setTitre("Solde");
+            carteNombrePrets->setValeur(formatFcfa(compteClient->getSolde()));
+            carteSoldeMoyen->setTitre("Solde moyen 30j");
+            carteSoldeMoyen->setValeur(formatFcfa(compteClient->getSoldeMoyen()));
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
         }
     }
 }
@@ -296,12 +515,24 @@ void FenetreTableauBord::creerCompteDepuisLeDashboard()
     }
 
     CompteController::rechargerComptes();
+<<<<<<< HEAD
     rafraichirVue();
     fenetreStatistiques->actualiser();
     fenetreStatsIndividuelles->actualiser();
     QMessageBox::information(this, "Creation", "Compte cree et enregistre dans la base de donnees.");
 }
 
+=======
+
+    rafraichirVue();
+    fenetreStatistiques->actualiser();
+    fenetreStatsIndividuelles->actualiser();
+
+    QMessageBox::information(this, "Creation", "Compte cree et enregistre dans la base de donnees.");
+}
+
+<<<<<<< HEAD
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
 void FenetreTableauBord::exporterCSV()
 {
     const QString chemin = QFileDialog::getSaveFileName(
@@ -318,6 +549,7 @@ void FenetreTableauBord::exporterCSV()
     out.setEncoding(QStringConverter::Utf8);
     out << "IBAN;Type;Solde;Statut;Date;TypeTransaction;Montant;SoldeApres;Description\n";
 
+<<<<<<< HEAD
     const QVector<CompteBancaire> comptes = CompteController::getComptes();
     for (const CompteBancaire& cb : comptes) {
         const QVector<Transaction> txns = CompteController::getTransactions(CompteController::getIban(cb));
@@ -335,19 +567,52 @@ void FenetreTableauBord::exporterCSV()
                     << QString::number(CompteController::getMontant(t), 'f', 0) << ";"
                     << QString::number(CompteController::getSoldeApres(t), 'f', 0) << ";"
                     << CompteController::getDescription(t) << "\n";
+=======
+    const QVector<CompteBancaire> comptes = Banque::getComptes();
+    for (const CompteBancaire& cb : comptes) {
+        const QVector<Transaction> txns = DataManager::instance().chargerTransactions(cb.getIBAN());
+        if (txns.isEmpty()) {
+            out << cb.getIBAN() << ";" << typeCompteString(cb.getType()) << ";"
+                << QString::number(cb.getSolde(), 'f', 0) << ";ACTIF;;;;;\n";
+        } else {
+            for (const Transaction& t : txns) {
+                out << cb.getIBAN() << ";" << typeCompteString(cb.getType()) << ";"
+                    << QString::number(cb.getSolde(), 'f', 0) << ";ACTIF;"
+                    << t.getDate().toString("dd/MM/yyyy") << ";"
+                    << t.getType() << ";"
+                    << QString::number(t.getMontant(), 'f', 0) << ";"
+                    << QString::number(t.getSoldeApres(), 'f', 0) << ";"
+                    << t.getDescription() << "\n";
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
             }
         }
     }
 
     fichier.close();
     QMessageBox::information(this, "Export CSV",
+<<<<<<< HEAD
         QString("Donnees exportees dans %1 (%2 comptes).").arg(chemin).arg(comptes.size()));
 }
 
 void FenetreTableauBord::deconnecter()
 {
+=======
+        QString("Donnees exportees dans %1 (%2 comptes).")
+            .arg(chemin).arg(comptes.size()));
+}
+
+=======
+>>>>>>> f820f35defca2484d81e938fe98d949fd62a22f8
+void FenetreTableauBord::deconnecter()
+{
+    Banque::viderComptes();
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
     auto* connexion = new FenetreConnexion;
     connexion->setAttribute(Qt::WA_DeleteOnClose);
     connexion->show();
     close();
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154

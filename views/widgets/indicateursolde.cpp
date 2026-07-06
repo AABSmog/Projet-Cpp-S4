@@ -27,11 +27,20 @@ IndicateurSolde::IndicateurSolde(
 void IndicateurSolde::setValeur(const QString& valeur)
 {
     valeurLabel->setText(valeur);
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
     if (valeur.startsWith('-')) {
         valeurLabel->setStyleSheet("color: #E74C3C; font-weight: bold; font-size: 18px;");
     } else {
         valeurLabel->setStyleSheet("color: #2ECC71; font-weight: bold; font-size: 18px;");
     }
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> f820f35defca2484d81e938fe98d949fd62a22f8
+>>>>>>> 9b452efefeece18804b98c3983e51138a350b154
 }
 
 void IndicateurSolde::setTitre(const QString& titre)
