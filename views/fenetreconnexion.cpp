@@ -15,9 +15,6 @@
 #include <QMessageBox>
 #include <QDoubleValidator>
 
-#include "../data/datamanager.h"
-#include "../controllers/comptecontroller.h"
-
 FenetreConnexion::FenetreConnexion(QWidget *parent)
     : QWidget(parent)
     , essaisRestants(3)
