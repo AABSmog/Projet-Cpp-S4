@@ -135,6 +135,7 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
 
     auto* topBar = new QHBoxLayout;
     auto* titre = new QLabel("Tableau de Bord");
+<<<<<<< HEAD
 
     cmbSelecteurCompte = new QComboBox;
     cmbSelecteurCompte->setMinimumWidth(200);
@@ -152,6 +153,8 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
         "QPushButton:hover { background-color: #1E8449; }");
     connect(btnExportCSV, &QPushButton::clicked, this, [this]() { exporterCSV(); });
 
+=======
+>>>>>>> f820f35defca2484d81e938fe98d949fd62a22f8
     btnDeconnexion = new QPushButton("Deconnexion");
     btnDeconnexion->setStyleSheet(
         "QPushButton { background-color: #C0392B; color: white; border: none; "
@@ -159,8 +162,11 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
         "QPushButton:hover { background-color: #922B21; }");
     topBar->addWidget(titre);
     topBar->addStretch();
+<<<<<<< HEAD
     topBar->addWidget(cmbSelecteurCompte);
     topBar->addWidget(btnExportCSV);
+=======
+>>>>>>> f820f35defca2484d81e938fe98d949fd62a22f8
     topBar->addWidget(btnDeconnexion);
 
     connect(btnDeconnexion, &QPushButton::clicked, this, &FenetreTableauBord::deconnecter);
@@ -179,6 +185,7 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
 
     mettreAJourCartes();
 
+<<<<<<< HEAD
     btnExportCSV->setVisible(estAdmin());
 
     if (!estAdmin()) {
@@ -193,6 +200,8 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
             cmbSelecteurCompte->setVisible(true);
     }
 
+=======
+>>>>>>> f820f35defca2484d81e938fe98d949fd62a22f8
     auto* blocCreation = new QGroupBox("Creation de compte pour le client connecte");
     auto* form = new QFormLayout(blocCreation);
 
@@ -275,6 +284,7 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
 
 void FenetreTableauBord::rafraichirVue()
 {
+<<<<<<< HEAD
     if (!estAdmin()) {
         QString courant = cmbSelecteurCompte->currentData().toString();
         cmbSelecteurCompte->blockSignals(true);
@@ -291,6 +301,8 @@ void FenetreTableauBord::rafraichirVue()
         cmbSelecteurCompte->setVisible(cmbSelecteurCompte->count() > 1);
         cmbSelecteurCompte->blockSignals(false);
     }
+=======
+>>>>>>> f820f35defca2484d81e938fe98d949fd62a22f8
     mettreAJourCartes();
     QVector<CompteBancaire> hComptes = estAdmin() ? Banque::getComptes() : comptesPourClient(Banque::getComptes());
     remplirHistorique(tableHistorique, hComptes);
@@ -311,6 +323,7 @@ void FenetreTableauBord::mettreAJourCartes()
         carteSoldeMoyen->setTitre("Solde moyen");
         carteSoldeMoyen->setValeur(formatFcfa(stats.soldeMoyen));
     } else {
+<<<<<<< HEAD
         const CompteBancaire* compteClient = nullptr;
         QString selectedIban = cmbSelecteurCompte->currentData().toString();
         if (!selectedIban.isEmpty()) {
@@ -327,6 +340,15 @@ void FenetreTableauBord::mettreAJourCartes()
                     compteClient = &c;
                     break;
                 }
+=======
+        const Client* client = DataManager::instance().clientConnecte();
+        int clientId = client ? client->getIdClient() : 0;
+        const CompteBancaire* compteClient = nullptr;
+        for (const CompteBancaire& c : comptes) {
+            if (c.getClientId() == clientId) {
+                compteClient = &c;
+                break;
+>>>>>>> f820f35defca2484d81e938fe98d949fd62a22f8
             }
         }
         if (compteClient) {
@@ -372,6 +394,7 @@ void FenetreTableauBord::creerCompteDepuisLeDashboard()
     QMessageBox::information(this, "Creation", "Compte cree et enregistre dans la base de donnees.");
 }
 
+<<<<<<< HEAD
 void FenetreTableauBord::exporterCSV()
 {
     const QString chemin = QFileDialog::getSaveFileName(
@@ -413,6 +436,8 @@ void FenetreTableauBord::exporterCSV()
             .arg(chemin).arg(comptes.size()));
 }
 
+=======
+>>>>>>> f820f35defca2484d81e938fe98d949fd62a22f8
 void FenetreTableauBord::deconnecter()
 {
     Banque::viderComptes();
