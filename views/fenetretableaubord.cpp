@@ -69,6 +69,7 @@ static bool estAdmin()
     return client != nullptr && client->getLogin() == "admin";
 }
 
+<<<<<<< HEAD
 static QVector<CompteBancaire> comptesPourClient(const QVector<CompteBancaire>& comptes)
 {
     const Client* client = DataManager::instance().clientConnecte();
@@ -82,6 +83,8 @@ static QVector<CompteBancaire> comptesPourClient(const QVector<CompteBancaire>& 
     return filtres.isEmpty() ? comptes : filtres;
 }
 
+=======
+>>>>>>> 76d6250b8648c0236995278e591462b70659489d
 static VueDashboardStats calculerStats(const QVector<CompteBancaire>& comptes)
 {
     VueDashboardStats stats;
@@ -212,10 +215,14 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
     tableHistorique->horizontalHeader()->setStretchLastSection(true);
     tableHistorique->setAlternatingRowColors(true);
 
+<<<<<<< HEAD
     {
         QVector<CompteBancaire> hComptes = estAdmin() ? Banque::getComptes() : comptesPourClient(Banque::getComptes());
         remplirHistorique(tableHistorique, hComptes);
     }
+=======
+    remplirHistorique(tableHistorique, Banque::getComptes());
+>>>>>>> 76d6250b8648c0236995278e591462b70659489d
 
     fenetreOperations = new FenetreOperations;
     connect(fenetreOperations, &FenetreOperations::operationEffectuee, this, &FenetreTableauBord::rafraichirVue);
@@ -240,8 +247,12 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
 void FenetreTableauBord::rafraichirVue()
 {
     mettreAJourCartes();
+<<<<<<< HEAD
     QVector<CompteBancaire> hComptes = estAdmin() ? Banque::getComptes() : comptesPourClient(Banque::getComptes());
     remplirHistorique(tableHistorique, hComptes);
+=======
+    remplirHistorique(tableHistorique, Banque::getComptes());
+>>>>>>> 76d6250b8648c0236995278e591462b70659489d
 }
 
 void FenetreTableauBord::mettreAJourCartes()
@@ -258,6 +269,7 @@ void FenetreTableauBord::mettreAJourCartes()
         carteNombrePrets->setValeur(QString::number(stats.nombrePrets));
         carteSoldeMoyen->setTitre("Solde moyen");
         carteSoldeMoyen->setValeur(formatFcfa(stats.soldeMoyen));
+<<<<<<< HEAD
     } else {
         const Client* client = DataManager::instance().clientConnecte();
         int clientId = client ? client->getIdClient() : 0;
@@ -278,6 +290,18 @@ void FenetreTableauBord::mettreAJourCartes()
             carteSoldeMoyen->setTitre("Solde moyen 30j");
             carteSoldeMoyen->setValeur(formatFcfa(compteClient->getSoldeMoyen()));
         }
+=======
+    } else if (!comptes.isEmpty()) {
+        const CompteBancaire& c = comptes.first();
+        carteSoldeTotal->setTitre("IBAN");
+        carteSoldeTotal->setValeur(c.getIBAN());
+        carteNombreComptes->setTitre("Type");
+        carteNombreComptes->setValeur(typeCompteString(c.getType()));
+        carteNombrePrets->setTitre("Solde");
+        carteNombrePrets->setValeur(formatFcfa(c.getSolde()));
+        carteSoldeMoyen->setTitre("Solde moyen 30j");
+        carteSoldeMoyen->setValeur(formatFcfa(c.getSoldeMoyen()));
+>>>>>>> 76d6250b8648c0236995278e591462b70659489d
     }
 }
 

@@ -64,14 +64,20 @@ void FenetreStatsIndividuelles::actualiser()
 {
     const Client* client = DataManager::instance().clientConnecte();
     const bool estAdmin = client != nullptr && client->getLogin() == "admin";
+<<<<<<< HEAD
     int clientId = client ? client->getIdClient() : 0;
+=======
+>>>>>>> 76d6250b8648c0236995278e591462b70659489d
     const QVector<CompteBancaire> comptes = Banque::getComptes();
 
     cmbCompte->blockSignals(true);
     cmbCompte->clear();
 
+<<<<<<< HEAD
     CompteBancaire* compteAffiche = nullptr;
 
+=======
+>>>>>>> 76d6250b8648c0236995278e591462b70659489d
     if (estAdmin) {
         cmbCompte->show();
         for (const auto& c : comptes) {
@@ -81,6 +87,7 @@ void FenetreStatsIndividuelles::actualiser()
                     .arg(c.getSolde(), 0, 'f', 0),
                 c.getIBAN());
         }
+<<<<<<< HEAD
         if (cmbCompte->count() > 0) {
             compteAffiche = Banque::chercherCompte(cmbCompte->itemData(0).toString());
         }
@@ -92,14 +99,32 @@ void FenetreStatsIndividuelles::actualiser()
                 break;
             }
         }
+=======
+    } else {
+        cmbCompte->hide();
+>>>>>>> 76d6250b8648c0236995278e591462b70659489d
     }
 
     cmbCompte->blockSignals(false);
 
+<<<<<<< HEAD
     if (compteAffiche) {
         afficherInfosCompte(*compteAffiche);
     } else if (!comptes.isEmpty()) {
         afficherInfosCompte(comptes.first());
+=======
+    if (!comptes.isEmpty()) {
+        QString iban;
+        if (estAdmin && cmbCompte->count() > 0) {
+            iban = cmbCompte->itemData(0).toString();
+        } else {
+            iban = comptes.first().getIBAN();
+        }
+        CompteBancaire* compte = Banque::chercherCompte(iban);
+        if (compte) {
+            afficherInfosCompte(*compte);
+        }
+>>>>>>> 76d6250b8648c0236995278e591462b70659489d
     }
 }
 
