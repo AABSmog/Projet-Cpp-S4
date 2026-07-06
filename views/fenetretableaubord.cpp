@@ -179,11 +179,13 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
     fenetreOperations = new FenetreOperations;
     connect(fenetreOperations, &FenetreOperations::operationEffectuee, this, &FenetreTableauBord::rafraichirVue);
     fenetreStatistiques = new FenetreStatistiques;
+    fenetreStatsIndividuelles = new FenetreStatsIndividuelles;
 
     onglets = new QTabWidget;
     onglets->addTab(fenetreOperations, "Operations");
     if (CompteController::estAdmin())
         onglets->addTab(fenetreStatistiques, "Statistiques globales");
+    onglets->addTab(fenetreStatsIndividuelles, "Mon Compte");
     onglets->addTab(tableHistorique, "Historique");
     onglets->addTab(blocCreationCompte, "Creer compte");
 
@@ -288,7 +290,7 @@ void FenetreTableauBord::creerCompteDepuisLeDashboard()
     CompteController::rechargerComptes();
     rafraichirVue();
     fenetreStatistiques->actualiser();
-    // fenetreStatsIndividuelles->actualiser();
+    fenetreStatsIndividuelles->actualiser();
     QMessageBox::information(this, "Creation", "Compte cree et enregistre dans la base de donnees.");
 }
 

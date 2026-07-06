@@ -2,25 +2,15 @@
 #include "widgets/indicateursolde.h"
 #include "widgets/graphiquesolde.h"
 #include "widgets/camembertdepenses.h"
-#include "../models/banque.h"
+#include "../controllers/comptecontroller.h"
+#include "../controllers/statcontroller.h"
+#include "../models/comptebancaire.h"
 #include "../models/transaction.h"
-#include "../data/datamanager.h"
-#include "../models/client.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QComboBox>
 #include <QLabel>
-
-static QString typeCompteString(TypeCompte type)
-{
-    switch (type) {
-        case TypeCompte::COURANT: return "Courant";
-        case TypeCompte::EPARGNE: return "Epargne";
-        case TypeCompte::PROFESSIONNEL: return "Professionnel";
-    }
-    return "Inconnu";
-}
 
 FenetreStatsIndividuelles::FenetreStatsIndividuelles(QWidget *parent)
     : QWidget(parent)
@@ -62,10 +52,9 @@ FenetreStatsIndividuelles::FenetreStatsIndividuelles(QWidget *parent)
 
 void FenetreStatsIndividuelles::actualiser()
 {
-    const Client* client = DataManager::instance().clientConnecte();
-    const bool estAdmin = client != nullptr && client->getLogin() == "admin";
-    int clientId = client ? client->getIdClient() : 0;
-    const QVector<CompteBancaire> comptes = Banque::getComptes();
+    const bool estAdmin = CompteController::estAdmin();
+    int clientId = CompteController::getClientConnecteId();
+    const QVector<CompteBancaire> comptes = CompteController::getComptes();
 
     cmbCompte->blockSignals(true);
     cmbCompte->clear();
@@ -77,18 +66,19 @@ void FenetreStatsIndividuelles::actualiser()
         for (const auto& c : comptes) {
             cmbCompte->addItem(
                 QString("%1 | %2 | %3 FCFA")
-                    .arg(c.getIBAN(), typeCompteString(c.getType()))
-                    .arg(c.getSolde(), 0, 'f', 0),
-                c.getIBAN());
+                    .arg(CompteController::getIban(c),
+                         CompteController::getTypeString(c))
+                    .arg(CompteController::getSolde(c), 0, 'f', 0),
+                CompteController::getIban(c));
         }
         if (cmbCompte->count() > 0) {
-            compteAffiche = Banque::chercherCompte(cmbCompte->itemData(0).toString());
+            compteAffiche = CompteController::chercherCompte(cmbCompte->itemData(0).toString());
         }
     } else {
         cmbCompte->hide();
         for (const auto& c : comptes) {
-            if (c.getClientId() == clientId) {
-                compteAffiche = Banque::chercherCompte(c.getIBAN());
+            if (CompteController::getClientId(c) == clientId) {
+                compteAffiche = CompteController::chercherCompte(CompteController::getIban(c));
                 break;
             }
         }
@@ -108,7 +98,7 @@ void FenetreStatsIndividuelles::afficherCompte(int index)
     if (index < 0) return;
 
     const QString iban = cmbCompte->itemData(index).toString();
-    CompteBancaire* compte = Banque::chercherCompte(iban);
+    CompteBancaire* compte = CompteController::chercherCompte(iban);
     if (compte) {
         afficherInfosCompte(*compte);
     }
@@ -116,15 +106,15 @@ void FenetreStatsIndividuelles::afficherCompte(int index)
 
 void FenetreStatsIndividuelles::afficherInfosCompte(const CompteBancaire& compte)
 {
-    carteSolde->setValeur(QString::number(compte.getSolde(), 'f', 0) + " FCFA");
+    carteSolde->setValeur(QString::number(CompteController::getSolde(compte), 'f', 0) + " FCFA");
 
     double totalDepots = 0.0, totalRetraits = 0.0;
-    const auto historique = compte.getHistorique(1000);
+    const auto historique = CompteController::getHistorique(compte, 1000);
     for (const auto& t : historique) {
-        if (t.getType().contains("retrait", Qt::CaseInsensitive)) {
-            totalRetraits += t.getMontant();
+        if (CompteController::estUnRetrait(t)) {
+            totalRetraits += CompteController::getMontant(t);
         } else {
-            totalDepots += t.getMontant();
+            totalDepots += CompteController::getMontant(t);
         }
     }
 
@@ -132,6 +122,6 @@ void FenetreStatsIndividuelles::afficherInfosCompte(const CompteBancaire& compte
     carteRetraits->setValeur(QString::number(totalRetraits, 'f', 0) + " FCFA");
     carteNbTransactions->setValeur(QString::number(historique.size()));
 
-    graphique->setDonnees(compte.getSoldesMensuels());
+    graphique->setDonnees(CompteController::getSoldesMensuels(compte));
     camembert->setDonnees(totalDepots, totalRetraits);
 }
