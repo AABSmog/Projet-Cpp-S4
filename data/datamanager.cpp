@@ -496,16 +496,18 @@ QVector<CompteBancaire> DataManager::chargerComptes() const
 {
     QVector<CompteBancaire> comptes;
     QSqlQuery query(db);
-    if (!query.exec("SELECT iban, solde, type, statut FROM COMPTEBANCAIRE ORDER BY iban")) {
+    if (!query.exec("SELECT iban, solde, type, statut, idClient FROM COMPTEBANCAIRE ORDER BY iban")) {
         return comptes;
     }
 
     while (query.next()) {
-        comptes.append(CompteBancaire(
+        CompteBancaire cb(
             query.value("iban").toString(),
             static_cast<TypeCompte>(query.value("type").toInt()),
             query.value("solde").toDouble(),
-            static_cast<StatutCompte>(query.value("statut").toInt())));
+            static_cast<StatutCompte>(query.value("statut").toInt()),
+            query.value("idClient").toInt());
+        comptes.append(cb);
     }
 
     return comptes;
@@ -564,7 +566,7 @@ CompteBancaire* DataManager::selectCompte(const QString& iban) const
 {
     QSqlQuery query(db);
     query.prepare(
-        "SELECT iban, solde, type, statut "
+        "SELECT iban, solde, type, statut, idClient "
         "FROM COMPTEBANCAIRE "
         "WHERE iban = :iban"
         );
@@ -582,11 +584,14 @@ CompteBancaire* DataManager::selectCompte(const QString& iban) const
         StatutCompte statut =
             static_cast<StatutCompte>(query.value("statut").toInt());
 
+        int idClient = query.value("idClient").toInt();
+
         return new CompteBancaire(
             ibanCompte,
             type,
             solde,
-            statut
+            statut,
+            idClient
             );
     }
 

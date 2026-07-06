@@ -14,8 +14,7 @@
 #include <QDoubleValidator>
 
 #include "../data/datamanager.h"
-#include "../models/banque.h"
-#include "../models/comptebancaire.h"
+#include "../controllers/comptecontroller.h"
 
 FenetreConnexion::FenetreConnexion(QWidget *parent)
     : QWidget(parent)
@@ -185,11 +184,7 @@ void FenetreConnexion::creerClientEtCompte()
         return;
     }
 
-    Banque::viderComptes();
-    const QVector<CompteBancaire> comptes = DataManager::instance().chargerComptes();
-    for (const CompteBancaire& compte : comptes) {
-        Banque::ajouterCompte(compte);
-    }
+    CompteController::rechargerComptes();
 
     QMessageBox::information(this,
                              "Creation",

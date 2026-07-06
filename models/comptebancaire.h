@@ -10,7 +10,8 @@ class CompteBancaire {
 public:
     //Constructeur
     CompteBancaire(const QString& iban, TypeCompte type,
-                   double soldeInitial = 0.0, StatutCompte statut=StatutCompte::ACTIF);
+                   double soldeInitial = 0.0, StatutCompte statut=StatutCompte::ACTIF,
+                   int idClient = 0);
     // Methodes de transaction
     bool deposer(double montant, const QString& desc = "");
     bool retirer(double montant, const QString& desc = "");
@@ -24,6 +25,8 @@ public:
     void setType(TypeCompte type);
     StatutCompte getStatut() const ;
     void setStatut(StatutCompte statut);
+    int getClientId() const;
+    void setClientId(int id);
     QVector<Transaction> getHistorique(int n = 30) const;
     void chargerHistorique(const QVector<Transaction>& transactions);
     // Statistiques
@@ -36,6 +39,7 @@ private:
     double solde;
     TypeCompte type;
     StatutCompte statut;
+    int idClient;
     QVector<Transaction> historique;
     void enregistrerTransaction(const QString& t, double m, const QString& d);
 };

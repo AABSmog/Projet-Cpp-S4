@@ -15,8 +15,10 @@ public:
         QWidget *parent = nullptr);
 
     void setValeur(const QString& valeur);
+    void setTitre(const QString& titre);
 
 private:
+    QLabel* titreLabel;
     QLabel* valeurLabel;
 };
 

@@ -11,7 +11,7 @@ IndicateurSolde::IndicateurSolde(
 {
     auto* layout = new QVBoxLayout(this);
 
-    auto* titreLabel = new QLabel(titre);
+    titreLabel = new QLabel(titre);
     valeurLabel = new QLabel(valeur);
 
     layout->addWidget(titreLabel);
@@ -27,4 +27,9 @@ IndicateurSolde::IndicateurSolde(
 void IndicateurSolde::setValeur(const QString& valeur)
 {
     valeurLabel->setText(valeur);
+}
+
+void IndicateurSolde::setTitre(const QString& titre)
+{
+    titreLabel->setText(titre);
 }
