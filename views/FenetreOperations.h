@@ -5,6 +5,7 @@
 class QComboBox;
 class QLineEdit;
 class QPushButton;
+class QLabel;
 
 class FenetreOperations : public QWidget
 {
@@ -18,6 +19,7 @@ signals:
 
 private:
     void executerOperation();
+    void changerOperation(int index);
 
     QComboBox* cmbOperation;
     QLineEdit* txtIbanSource;
@@ -25,4 +27,5 @@ private:
     QLineEdit* txtMontant;
     QLineEdit* txtDescription;
     QPushButton* btnExecuter;
+    QLabel* lblIbanDestination;
 };

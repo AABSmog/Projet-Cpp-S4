@@ -37,10 +37,12 @@ FenetreOperations::FenetreOperations(QWidget* parent)
 
     btnExecuter = new QPushButton("Executer");
 
+    lblIbanDestination = new QLabel("IBAN destination");
+
     auto* form = new QFormLayout;
     form->addRow("Operation", cmbOperation);
     form->addRow("IBAN source", txtIbanSource);
-    form->addRow("IBAN destination", txtIbanDestination);
+    form->addRow(lblIbanDestination, txtIbanDestination);
     form->addRow("Montant", txtMontant);
     form->addRow("Description", txtDescription);
 
@@ -51,6 +53,18 @@ FenetreOperations::FenetreOperations(QWidget* parent)
     connect(btnExecuter, &QPushButton::clicked, this, [this]() {
         executerOperation();
     });
+
+    connect(cmbOperation, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, &FenetreOperations::changerOperation);
+
+    changerOperation(0);
+}
+
+void FenetreOperations::changerOperation(int index)
+{
+    const bool visible = index == 2;
+    lblIbanDestination->setVisible(visible);
+    txtIbanDestination->setVisible(visible);
 }
 
 void FenetreOperations::executerOperation()
