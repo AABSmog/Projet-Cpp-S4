@@ -2,17 +2,9 @@
 #include "widgets/indicateursolde.h"
 #include "widgets/graphiquesolde.h"
 #include "widgets/camembertdepenses.h"
-<<<<<<< HEAD
-#include "../controllers/comptecontroller.h"
-#include "../controllers/statcontroller.h"
-#include "../controllers/authcontroller.h"
-#include "../models/comptebancaire.h"
-#include "../models/transaction.h"
-=======
 #include "../models/banque.h"
 #include "../models/transaction.h"
 #include "../data/datamanager.h"
->>>>>>> 9b452efefeece18804b98c3983e51138a350b154
 #include "../models/client.h"
 
 #include <QVBoxLayout>
@@ -20,8 +12,6 @@
 #include <QComboBox>
 #include <QLabel>
 
-<<<<<<< HEAD
-=======
 static QString typeCompteString(TypeCompte type)
 {
     switch (type) {
@@ -32,7 +22,6 @@ static QString typeCompteString(TypeCompte type)
     return "Inconnu";
 }
 
->>>>>>> 9b452efefeece18804b98c3983e51138a350b154
 FenetreStatsIndividuelles::FenetreStatsIndividuelles(QWidget *parent)
     : QWidget(parent)
 {
@@ -73,45 +62,21 @@ FenetreStatsIndividuelles::FenetreStatsIndividuelles(QWidget *parent)
 
 void FenetreStatsIndividuelles::actualiser()
 {
-<<<<<<< HEAD
-    const bool admin = CompteController::estAdmin();
-    int clientId = CompteController::getClientConnecteId();
-    QVector<CompteBancaire> comptes = CompteController::getComptes();
-=======
     const Client* client = DataManager::instance().clientConnecte();
     const bool estAdmin = client != nullptr && client->getLogin() == "admin";
     int clientId = client ? client->getIdClient() : 0;
     const QVector<CompteBancaire> comptes = Banque::getComptes();
->>>>>>> 9b452efefeece18804b98c3983e51138a350b154
 
     cmbCompte->blockSignals(true);
     cmbCompte->clear();
 
     CompteBancaire* compteAffiche = nullptr;
 
-<<<<<<< HEAD
-    if (admin) {
-=======
     if (estAdmin) {
->>>>>>> 9b452efefeece18804b98c3983e51138a350b154
         cmbCompte->show();
         for (const auto& c : comptes) {
             cmbCompte->addItem(
                 QString("%1 | %2 | %3 FCFA")
-<<<<<<< HEAD
-                    .arg(CompteController::getIban(c),
-                         CompteController::getTypeString(c))
-                    .arg(CompteController::getSolde(c), 0, 'f', 0),
-                CompteController::getIban(c));
-        }
-        if (cmbCompte->count() > 0)
-            compteAffiche = CompteController::chercherCompte(cmbCompte->itemData(0).toString());
-    } else {
-        cmbCompte->hide();
-        for (const auto& c : comptes) {
-            if (CompteController::getClientId(c) == clientId) {
-                compteAffiche = CompteController::chercherCompte(CompteController::getIban(c));
-=======
                     .arg(c.getIBAN(), typeCompteString(c.getType()))
                     .arg(c.getSolde(), 0, 'f', 0),
                 c.getIBAN());
@@ -124,7 +89,6 @@ void FenetreStatsIndividuelles::actualiser()
         for (const auto& c : comptes) {
             if (c.getClientId() == clientId) {
                 compteAffiche = Banque::chercherCompte(c.getIBAN());
->>>>>>> 9b452efefeece18804b98c3983e51138a350b154
                 break;
             }
         }
@@ -132,54 +96,26 @@ void FenetreStatsIndividuelles::actualiser()
 
     cmbCompte->blockSignals(false);
 
-<<<<<<< HEAD
-    if (compteAffiche)
-        afficherInfosCompte(*compteAffiche);
-    else if (!comptes.isEmpty())
-        afficherInfosCompte(comptes.first());
-=======
     if (compteAffiche) {
         afficherInfosCompte(*compteAffiche);
     } else if (!comptes.isEmpty()) {
         afficherInfosCompte(comptes.first());
     }
->>>>>>> 9b452efefeece18804b98c3983e51138a350b154
 }
 
 void FenetreStatsIndividuelles::afficherCompte(int index)
 {
     if (index < 0) return;
-<<<<<<< HEAD
-    const QString iban = cmbCompte->itemData(index).toString();
-    CompteBancaire* compte = CompteController::chercherCompte(iban);
-    if (compte)
-        afficherInfosCompte(*compte);
-=======
 
     const QString iban = cmbCompte->itemData(index).toString();
     CompteBancaire* compte = Banque::chercherCompte(iban);
     if (compte) {
         afficherInfosCompte(*compte);
     }
->>>>>>> 9b452efefeece18804b98c3983e51138a350b154
 }
 
 void FenetreStatsIndividuelles::afficherInfosCompte(const CompteBancaire& compte)
 {
-<<<<<<< HEAD
-    carteSolde->setValeur(QString::number(CompteController::getSolde(compte), 'f', 0) + " FCFA");
-
-    QVector<Transaction> histo = CompteController::getHistorique(compte, 1000);
-    double depots = 0.0, retraits = 0.0;
-    StatController::calculerStatsTransactions(histo, &depots, &retraits);
-
-    carteDepots->setValeur(QString::number(depots, 'f', 0) + " FCFA");
-    carteRetraits->setValeur(QString::number(retraits, 'f', 0) + " FCFA");
-    carteNbTransactions->setValeur(QString::number(histo.size()));
-
-    graphique->setDonnees(CompteController::getSoldesMensuels(compte));
-    camembert->setDonnees(depots, retraits);
-=======
     carteSolde->setValeur(QString::number(compte.getSolde(), 'f', 0) + " FCFA");
 
     double totalDepots = 0.0, totalRetraits = 0.0;
@@ -198,5 +134,4 @@ void FenetreStatsIndividuelles::afficherInfosCompte(const CompteBancaire& compte
 
     graphique->setDonnees(compte.getSoldesMensuels());
     camembert->setDonnees(totalDepots, totalRetraits);
->>>>>>> 9b452efefeece18804b98c3983e51138a350b154
 }
