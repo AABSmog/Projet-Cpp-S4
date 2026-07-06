@@ -1,8 +1,11 @@
 #include "fenetretableaubord.h"
 #include "FenetreOperations.h"
 #include "fenetrestatistiques.h"
+#include "FenetreStatsIndividuelles.h"
+#include "fenetreconnexion.h"
 #include "widgets/indicateursolde.h"
 #include "../controllers/authcontroller.h"
+#include "../controllers/comptecontroller.h"
 #include "../data/datamanager.h"
 #include "../models/banque.h"
 #include "../models/transaction.h"
@@ -48,6 +51,22 @@ struct VueDashboardStats
 static QString formatFcfa(double valeur)
 {
     return QString::number(valeur, 'f', 0) + " FCFA";
+}
+
+static QString typeCompteString(TypeCompte type)
+{
+    switch (type) {
+        case TypeCompte::COURANT: return "Courant";
+        case TypeCompte::EPARGNE: return "Epargne";
+        case TypeCompte::PROFESSIONNEL: return "Professionnel";
+    }
+    return "Inconnu";
+}
+
+static bool estAdmin()
+{
+    const Client* client = DataManager::instance().clientConnecte();
+    return client != nullptr && client->getLogin() == "admin";
 }
 
 static VueDashboardStats calculerStats(const QVector<CompteBancaire>& comptes)
@@ -97,23 +116,32 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
 
     auto* principal = new QVBoxLayout(this);
 
+    auto* topBar = new QHBoxLayout;
     auto* titre = new QLabel("Tableau de Bord");
-    titre->setAlignment(Qt::AlignCenter);
+    btnDeconnexion = new QPushButton("Deconnexion");
+    btnDeconnexion->setStyleSheet(
+        "QPushButton { background-color: #C0392B; color: white; border: none; "
+        "border-radius: 6px; padding: 8px 16px; font-weight: bold; }"
+        "QPushButton:hover { background-color: #922B21; }");
+    topBar->addWidget(titre);
+    topBar->addStretch();
+    topBar->addWidget(btnDeconnexion);
+
+    connect(btnDeconnexion, &QPushButton::clicked, this, &FenetreTableauBord::deconnecter);
 
     auto* cartes = new QHBoxLayout;
 
-    const QVector<CompteBancaire> comptes = Banque::getComptes();
-    const VueDashboardStats stats = calculerStats(comptes);
-
-    carteSoldeTotal = new IndicateurSolde("Solde total", formatFcfa(stats.soldeTotal));
-    carteNombreComptes = new IndicateurSolde("Comptes", QString::number(stats.nombreComptes));
-    carteNombrePrets = new IndicateurSolde("Prets", QString::number(stats.nombrePrets));
-    carteSoldeMoyen = new IndicateurSolde("Solde moyen", formatFcfa(stats.soldeMoyen));
+    carteSoldeTotal = new IndicateurSolde("Solde total", "0 FCFA");
+    carteNombreComptes = new IndicateurSolde("Comptes", "0");
+    carteNombrePrets = new IndicateurSolde("Prets", "0");
+    carteSoldeMoyen = new IndicateurSolde("Solde moyen", "0 FCFA");
 
     cartes->addWidget(carteSoldeTotal);
     cartes->addWidget(carteNombreComptes);
     cartes->addWidget(carteNombrePrets);
     cartes->addWidget(carteSoldeMoyen);
+
+    mettreAJourCartes();
 
     auto* blocCreation = new QGroupBox("Creation de compte pour le client connecte");
     auto* form = new QFormLayout(blocCreation);
@@ -170,33 +198,57 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
     tableHistorique->horizontalHeader()->setStretchLastSection(true);
     tableHistorique->setAlternatingRowColors(true);
 
-    remplirHistorique(tableHistorique, comptes);
+    remplirHistorique(tableHistorique, Banque::getComptes());
 
     fenetreOperations = new FenetreOperations;
     fenetreStatistiques = new FenetreStatistiques;
+    fenetreStatsIndividuelles = new FenetreStatsIndividuelles;
 
     onglets = new QTabWidget;
     onglets->addTab(fenetreOperations, "Operations");
-    onglets->addTab(fenetreStatistiques, "Statistiques");
+    if (estAdmin()) {
+        onglets->addTab(fenetreStatistiques, "Statistiques globales");
+    }
+    onglets->addTab(fenetreStatsIndividuelles, "Mon Compte");
     onglets->addTab(tableHistorique, "Historique");
     onglets->addTab(blocCreationCompte, "Creer compte");
 
-    principal->addWidget(titre);
+    principal->addLayout(topBar);
     principal->addLayout(cartes);
     principal->addWidget(onglets);
 }
 
 void FenetreTableauBord::rafraichirVue()
 {
+    mettreAJourCartes();
+    remplirHistorique(tableHistorique, Banque::getComptes());
+}
+
+void FenetreTableauBord::mettreAJourCartes()
+{
     const QVector<CompteBancaire> comptes = Banque::getComptes();
-    const VueDashboardStats stats = calculerStats(comptes);
 
-    carteSoldeTotal->setValeur(formatFcfa(stats.soldeTotal));
-    carteNombreComptes->setValeur(QString::number(stats.nombreComptes));
-    carteNombrePrets->setValeur(QString::number(stats.nombrePrets));
-    carteSoldeMoyen->setValeur(formatFcfa(stats.soldeMoyen));
-
-    remplirHistorique(tableHistorique, comptes);
+    if (estAdmin()) {
+        const VueDashboardStats stats = calculerStats(comptes);
+        carteSoldeTotal->setTitre("Solde total");
+        carteSoldeTotal->setValeur(formatFcfa(stats.soldeTotal));
+        carteNombreComptes->setTitre("Comptes");
+        carteNombreComptes->setValeur(QString::number(stats.nombreComptes));
+        carteNombrePrets->setTitre("Prets");
+        carteNombrePrets->setValeur(QString::number(stats.nombrePrets));
+        carteSoldeMoyen->setTitre("Solde moyen");
+        carteSoldeMoyen->setValeur(formatFcfa(stats.soldeMoyen));
+    } else if (!comptes.isEmpty()) {
+        const CompteBancaire& c = comptes.first();
+        carteSoldeTotal->setTitre("IBAN");
+        carteSoldeTotal->setValeur(c.getIBAN());
+        carteNombreComptes->setTitre("Type");
+        carteNombreComptes->setValeur(typeCompteString(c.getType()));
+        carteNombrePrets->setTitre("Solde");
+        carteNombrePrets->setValeur(formatFcfa(c.getSolde()));
+        carteSoldeMoyen->setTitre("Solde moyen 30j");
+        carteSoldeMoyen->setValeur(formatFcfa(c.getSoldeMoyen()));
+    }
 }
 
 void FenetreTableauBord::creerCompteDepuisLeDashboard()
@@ -220,16 +272,20 @@ void FenetreTableauBord::creerCompteDepuisLeDashboard()
         return;
     }
 
-    Banque::viderComptes();
-    const QVector<CompteBancaire> comptes = DataManager::instance().chargerComptes();
-    for (const CompteBancaire& compte : comptes) {
-        CompteBancaire copie = compte;
-        copie.chargerHistorique(DataManager::instance().chargerTransactions(copie.getIBAN()));
-        Banque::ajouterCompte(copie);
-    }
+    CompteController::rechargerComptes();
 
     rafraichirVue();
     fenetreStatistiques->actualiser();
+    fenetreStatsIndividuelles->actualiser();
 
     QMessageBox::information(this, "Creation", "Compte cree et enregistre dans la base de donnees.");
+}
+
+void FenetreTableauBord::deconnecter()
+{
+    Banque::viderComptes();
+    auto* connexion = new FenetreConnexion;
+    connexion->setAttribute(Qt::WA_DeleteOnClose);
+    connexion->show();
+    close();
 }

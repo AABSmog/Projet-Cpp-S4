@@ -1,4 +1,5 @@
 #include "authcontroller.h"
+#include "comptecontroller.h"
 
 #include "../data/datamanager.h"
 #include <QCryptographicHash>
@@ -21,5 +22,6 @@ bool AuthController::verifierConnexion(const QString& login, const QString& motD
     }
 
     DataManager::instance().definirClientConnecte(client);
+    CompteController::rechargerComptes();
     return true;
 }

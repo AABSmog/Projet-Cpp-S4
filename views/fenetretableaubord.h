@@ -6,6 +6,7 @@ class QTableWidget;
 class QTabWidget;
 class FenetreOperations;
 class FenetreStatistiques;
+class FenetreStatsIndividuelles;
 class QLineEdit;
 class QPushButton;
 class QComboBox;
@@ -23,6 +24,8 @@ public:
 private:
     void rafraichirVue();
     void creerCompteDepuisLeDashboard();
+    void mettreAJourCartes();
+    void deconnecter();
 
     IndicateurSolde* carteSoldeTotal;
     IndicateurSolde* carteNombreComptes;
@@ -33,6 +36,7 @@ private:
     QGroupBox* blocCreationCompte;
     FenetreOperations* fenetreOperations;
     FenetreStatistiques* fenetreStatistiques;
+    FenetreStatsIndividuelles* fenetreStatsIndividuelles;
 
     QLineEdit* txtNom;
     QLineEdit* txtPrenom;
@@ -44,4 +48,5 @@ private:
     QComboBox* cmbTypeCompte;
     QLineEdit* txtSoldeInitial;
     QPushButton* btnCreationCompte;
+    QPushButton* btnDeconnexion;
 };
