@@ -40,7 +40,7 @@ static void remplirHistorique(QTableWidget* table, const QVector<CompteBancaire>
     if (comptes.isEmpty()) return;
     int row = 0;
     for (const CompteBancaire& compte : comptes) {
-        QVector<Transaction> histo = CompteController::getHistorique(compte, 10);
+        QVector<Transaction> histo = CompteController::getHistorique(compte, 30);
         table->setRowCount(table->rowCount() + histo.size());
         for (const Transaction& t : histo) {
             table->setItem(row, 0, new QTableWidgetItem(CompteController::getDateStr(t)));
