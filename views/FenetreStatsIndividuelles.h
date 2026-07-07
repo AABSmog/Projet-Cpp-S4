@@ -16,6 +16,7 @@ class FenetreStatsIndividuelles : public QWidget
 public:
     explicit FenetreStatsIndividuelles(QWidget *parent = nullptr);
     void actualiser();
+    void actualiserPourCompte(const QString& iban);
 
 private:
     void afficherCompte(int index);

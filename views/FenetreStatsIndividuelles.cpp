@@ -106,6 +106,13 @@ void FenetreStatsIndividuelles::actualiser()
     }
 }
 
+void FenetreStatsIndividuelles::actualiserPourCompte(const QString& iban)
+{
+    if (iban.isEmpty()) { actualiser(); return; }
+    CompteBancaire* compte = CompteController::chercherCompte(iban);
+    if (compte) afficherInfosCompte(*compte);
+}
+
 void FenetreStatsIndividuelles::afficherCompte(int index)
 {
     if (index < 0) return;

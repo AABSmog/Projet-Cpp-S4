@@ -93,6 +93,8 @@ FenetreTableauBord::FenetreTableauBord(QWidget *parent)
     cmbSelecteurCompte->setVisible(false);
     connect(cmbSelecteurCompte, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this]() {
         mettreAJourCartes();
+        QString iban = cmbSelecteurCompte->currentData().toString();
+        fenetreStatsIndividuelles->actualiserPourCompte(iban);
         QVector<CompteBancaire> hComptes = CompteController::estAdmin()
             ? CompteController::getComptes()
             : CompteController::getComptesPourClient(CompteController::getClientConnecteId());
