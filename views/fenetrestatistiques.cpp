@@ -12,6 +12,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QScrollArea>
 
 FenetreStatistiques::FenetreStatistiques(QWidget *parent)
     : QWidget(parent)
@@ -19,7 +20,12 @@ FenetreStatistiques::FenetreStatistiques(QWidget *parent)
     setWindowTitle("Statistiques");
     setMinimumSize(800, 600);
 
-    QVBoxLayout* mainLayout = new QVBoxLayout(this);
+    auto* scrollArea = new QScrollArea;
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    auto* content = new QWidget;
+    auto* mainLayout = new QVBoxLayout(content);
 
     QLabel* titre = new QLabel("Statistiques Bancaires");
     titre->setAlignment(Qt::AlignCenter);
@@ -53,6 +59,13 @@ FenetreStatistiques::FenetreStatistiques(QWidget *parent)
     mainLayout->addLayout(indicateursLayout);
     mainLayout->addWidget(graphique);
     mainLayout->addWidget(camembert);
+    mainLayout->addStretch();
+
+    scrollArea->setWidget(content);
+
+    auto* layoutExterne = new QVBoxLayout(this);
+    layoutExterne->setContentsMargins(0, 0, 0, 0);
+    layoutExterne->addWidget(scrollArea);
 
     actualiser();
 }
