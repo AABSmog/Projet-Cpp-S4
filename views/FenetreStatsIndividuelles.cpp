@@ -11,11 +11,17 @@
 #include <QHBoxLayout>
 #include <QComboBox>
 #include <QLabel>
+#include <QScrollArea>
 
 FenetreStatsIndividuelles::FenetreStatsIndividuelles(QWidget *parent)
     : QWidget(parent)
 {
-    auto* layout = new QVBoxLayout(this);
+    auto* scrollArea = new QScrollArea;
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    auto* content = new QWidget;
+    auto* layout = new QVBoxLayout(content);
 
     auto* titre = new QLabel("Mon Compte");
     titre->setAlignment(Qt::AlignCenter);
@@ -43,6 +49,13 @@ FenetreStatsIndividuelles::FenetreStatsIndividuelles(QWidget *parent)
     layout->addLayout(indicateursLayout);
     layout->addWidget(graphique);
     layout->addWidget(camembert);
+    layout->addStretch();
+
+    scrollArea->setWidget(content);
+
+    auto* mainLayout = new QVBoxLayout(this);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
+    mainLayout->addWidget(scrollArea);
 
     connect(cmbCompte, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &FenetreStatsIndividuelles::afficherCompte);
